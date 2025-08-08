@@ -9,20 +9,14 @@ function Gohead () {
 function InitSensor () {
     LeftDis = 0
     FrontDis = 0
-    pins.setPull(DigitalPin.P2, PinPullMode.PullNone)
-    pins.setPull(DigitalPin.P8, PinPullMode.PullNone)
-    pins.digitalWritePin(DigitalPin.P8, 1)
+    pins.digitalWritePin(DigitalPin.P8, 0)
     pins.digitalWritePin(DigitalPin.P2, 0)
+    pins.digitalWritePin(DigitalPin.P2, 1)
+    // LeftSensor
+    VL6180.initVL6180(42)
+    pins.digitalWritePin(DigitalPin.P8, 1)
     // FrontSensor
-    VL6180.initVL6180(41)
-    if (false) {
-        pins.digitalWritePin(DigitalPin.P2, 1)
-        pins.digitalWritePin(DigitalPin.P8, 0)
-        // LeftSensor
-        VL6180.initVL6180(42)
-        pins.digitalWritePin(DigitalPin.P2, 1)
-        pins.digitalWritePin(DigitalPin.P8, 1)
-    }
+    VL6180.initVL6180(43)
 }
 function 右转 () {
     pins.analogSetPeriod(AnalogPin.P13, 20000)
@@ -88,6 +82,16 @@ function win (history: number[], length: number, newValue: number) {
     sum = sum - 0 - min
     return sum / (history.length - 2)
 }
+// FrontSensor
+VL6180.continualRange(43, function (value) {
+    if (Math.abs(value - FrontDis) >= 10) {
+        FrontDis = value
+        VL6180.clearBuffer(43)
+    } else {
+        FrontDis = VL6180.averageLastest(43, 5)
+    }
+    bluetooth.uartWriteValue("F", FrontDis)
+})
 function GoStraight () {
     latest = LDls
     basic.pause(100)
@@ -159,16 +163,6 @@ function ZeroRadiusLeft () {
     pins.analogWritePin(AnalogPin.P14, LPWM)
     pins.analogWritePin(AnalogPin.P15, RPWM)
 }
-// FrontSensor
-VL6180.continualRange(41, function (value) {
-    if (Math.abs(value - FrontDis) >= 10) {
-        FrontDis = value
-        VL6180.clearBuffer(41)
-    } else {
-        FrontDis = VL6180.averageLastest(41, 5)
-    }
-    bluetooth.uartWriteValue("F", FrontDis)
-})
 let nowLDLs = 0
 let Dls = 0
 let LDls = 0
