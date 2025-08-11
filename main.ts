@@ -62,10 +62,10 @@ function GoStraight () {
             break;
         }
         nowLDLs = LeftDis
-        if (LeftDis < LeftSensorExpectedDis) {
+        if (nowLDLs < LeftSensorExpectedDis) {
             TurnRight()
             basic.pause(50)
-        } else if (LeftDis > LeftSensorExpectedDis) {
+        } else if (nowLDLs > LeftSensorExpectedDis) {
             TurnLeft()
             basic.pause(50)
         }
