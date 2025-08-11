@@ -62,10 +62,10 @@ function GoStraight () {
             break;
         }
         nowLDLs = LeftDis
-        if (nowLDLs < LeftSensorExpectedDis && !(nowLDLs - latest > errLDiS)) {
+        if (LeftDis < LeftSensorExpectedDis) {
             TurnRight()
             basic.pause(50)
-        } else if (nowLDLs > LeftSensorExpectedDis && !(latest - nowLDLs > errLDiS)) {
+        } else if (LeftDis > LeftSensorExpectedDis) {
             TurnLeft()
             basic.pause(50)
         }
@@ -76,12 +76,12 @@ function GoStraight () {
 }
 function Left90Turning () {
     Gohead()
-    basic.pause(200)
+    basic.pause(500)
     for (let index = 0; index < 6; index++) {
         ZeroRadiusLeft()
     }
     Gohead()
-    basic.pause(500)
+    basic.pause(600)
 }
 function TurnRight () {
     pins.digitalWritePin(DigitalPin.P13, 0)
@@ -154,7 +154,6 @@ let nowLDLs = 0
 let latest = 0
 let FrontDis = 0
 let LeftDis = 0
-let errLDiS = 0
 let 差距 = 0
 let LPWM = 0
 let RPWM = 0
@@ -168,10 +167,10 @@ LeftSensorLocation = 20
 let FrontSensorLocation = 30
 LeftSensorExpectedDis = WallMazeWidth / 2 - LeftSensorLocation
 FrontSensorClearanceDis = WallMazeWidth / 2 - FrontSensorLocation
-RPWM = 300
-LPWM = 300
-差距 = 0.8
-errLDiS = 0.5
+RPWM = 190
+LPWM = 200
+差距 = 0.7
+let errLDiS = 0.5
 let baseLine = 15
 control.raiseEvent(
 EventBusSource.MES_BROADCAST_GENERAL_ID,
