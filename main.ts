@@ -1,9 +1,9 @@
 function Gohead () {
-    pins.analogSetPeriod(AnalogPin.P13, 20000)
-    pins.digitalWritePin(DigitalPin.P14, 0)
+    pins.digitalWritePin(DigitalPin.P13, 0)
+    pins.analogSetPeriod(AnalogPin.P14, 20000)
     pins.analogSetPeriod(AnalogPin.P15, 20000)
     pins.digitalWritePin(DigitalPin.P16, 0)
-    pins.analogWritePin(AnalogPin.P13, LPWM)
+    pins.analogWritePin(AnalogPin.P14, LPWM)
     pins.analogWritePin(AnalogPin.P15, RPWM)
 }
 function InitSensor () {
@@ -18,38 +18,12 @@ function InitSensor () {
     // FrontSensor
     VL6180.initVL6180(43)
 }
-function 右转 () {
-    pins.analogSetPeriod(AnalogPin.P13, 20000)
-    pins.digitalWritePin(DigitalPin.P14, 0)
-    pins.digitalWritePin(DigitalPin.P15, 0)
-    pins.analogSetPeriod(AnalogPin.P16, 20000)
-    PWM_1 = DigitalPin.P13
-    PWM_2 = DigitalPin.P16
-    pins.analogWritePin(PWM_1, PWM)
-    pins.analogWritePin(PWM_2, PWM)
-    basic.pause(100)
-    pins.analogWritePin(PWM_1, 0)
-    pins.analogWritePin(PWM_2, 0)
-}
-function 左转 () {
+function TurnLeft () {
     pins.digitalWritePin(DigitalPin.P13, 0)
     pins.analogSetPeriod(AnalogPin.P14, 20000)
     pins.analogSetPeriod(AnalogPin.P15, 20000)
     pins.digitalWritePin(DigitalPin.P16, 0)
-    PWM_1 = DigitalPin.P14
-    PWM_2 = DigitalPin.P15
-    pins.analogWritePin(PWM_1, PWM)
-    pins.analogWritePin(PWM_2, PWM)
-    basic.pause(100)
-    pins.analogWritePin(PWM_2, 0)
-    pins.analogWritePin(PWM_1, 0)
-}
-function TurnLeft () {
-    pins.analogSetPeriod(AnalogPin.P13, 20000)
-    pins.digitalWritePin(DigitalPin.P14, 0)
-    pins.analogSetPeriod(AnalogPin.P15, 20000)
-    pins.digitalWritePin(DigitalPin.P16, 0)
-    pins.analogWritePin(AnalogPin.P13, LPWM * 差距)
+    pins.analogWritePin(AnalogPin.P14, LPWM * 差距)
     pins.analogWritePin(AnalogPin.P15, RPWM)
 }
 // LeftSensor
@@ -59,28 +33,14 @@ VL6180.continualRange(42, function (value) {
         VL6180.clearBuffer(42)
     } else {
         LeftDis = VL6180.averageLastest(42, 5)
+        LeftDis = LeftDis - LeftSensorLocation
     }
     bluetooth.uartWriteValue("L", LeftDis)
 })
 function Right90Turning () {
-    ZeroRadiusRight()
-    basic.pause(100)
-}
-function win (history: number[], length: number, newValue: number) {
-    history.push(newValue)
-    if (history.length > length) {
-        history.shift()
+    for (let index = 0; index < 6; index++) {
+        ZeroRadiusRight()
     }
-    sum = 0
-    min = 10000
-    max = 0
-    for (let 值 of history) {
-        sum = sum + 值
-        min = Math.min(min, 值)
-        max = Math.max(max, 值)
-    }
-    sum = sum - 0 - min
-    return sum / (history.length - 2)
 }
 // FrontSensor
 VL6180.continualRange(43, function (value) {
@@ -88,22 +48,24 @@ VL6180.continualRange(43, function (value) {
         FrontDis = value
         VL6180.clearBuffer(43)
     } else {
+        let FrontalSensorLocation = 0
         FrontDis = VL6180.averageLastest(43, 5)
+        FrontDis = FrontDis - FrontalSensorLocation
     }
     bluetooth.uartWriteValue("F", FrontDis)
 })
 function GoStraight () {
-    latest = LDls
+    latest = LeftDis
     basic.pause(100)
     while (true) {
-        if (LDls > 3 * baseLine || Dls < baseLine) {
+        if (LeftDis > 120 || FrontDis < FrontSensorClearanceDis) {
             break;
         }
-        nowLDLs = LDls
-        if (nowLDLs < baseLine - 5 && !(nowLDLs - latest > errLDiS)) {
+        nowLDLs = LeftDis
+        if (nowLDLs < LeftSensorExpectedDis && !(nowLDLs - latest > errLDiS)) {
             TurnRight()
             basic.pause(50)
-        } else if (nowLDLs > baseLine + 5 && !(latest - nowLDLs > errLDiS)) {
+        } else if (nowLDLs > LeftSensorExpectedDis && !(latest - nowLDLs > errLDiS)) {
             TurnLeft()
             basic.pause(50)
         }
@@ -114,18 +76,19 @@ function GoStraight () {
 }
 function Left90Turning () {
     Gohead()
-    basic.pause(500)
-    ZeroRadiusLeft()
-    basic.pause(450)
+    basic.pause(200)
+    for (let index = 0; index < 6; index++) {
+        ZeroRadiusLeft()
+    }
     Gohead()
-    basic.pause(2000)
+    basic.pause(500)
 }
 function TurnRight () {
-    pins.analogSetPeriod(AnalogPin.P13, 20000)
-    pins.digitalWritePin(DigitalPin.P14, 0)
+    pins.digitalWritePin(DigitalPin.P13, 0)
+    pins.analogSetPeriod(AnalogPin.P14, 20000)
     pins.analogSetPeriod(AnalogPin.P15, 20000)
     pins.digitalWritePin(DigitalPin.P16, 0)
-    pins.analogWritePin(AnalogPin.P13, LPWM)
+    pins.analogWritePin(AnalogPin.P14, LPWM)
     pins.analogWritePin(AnalogPin.P15, RPWM * 差距)
 }
 function Stop () {
@@ -137,10 +100,10 @@ function Stop () {
 control.onEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, EventBusValue.MES_ALERT_EVT_ALARM1, function () {
     basic.pause(1000)
     basic.showIcon(IconNames.Heart)
-    while (false) {
-        if (LDls > 3 * baseLine) {
+    while (true) {
+        if (LeftDis > 120) {
             Left90Turning()
-        } else if (Dls < baseLine) {
+        } else if (FrontDis < FrontSensorClearanceDis) {
             Right90Turning()
         } else {
             GoStraight()
@@ -148,49 +111,68 @@ control.onEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, EventBusValue.MES_ALERT
     }
 })
 function ZeroRadiusRight () {
+    pins.digitalWritePin(DigitalPin.P13, 0)
+    pins.analogSetPeriod(AnalogPin.P14, 20000)
+    pins.analogWritePin(AnalogPin.P14, 200)
+    pins.analogSetPeriod(AnalogPin.P15, 20000)
+    pins.analogWritePin(AnalogPin.P15, 100)
+    pins.digitalWritePin(DigitalPin.P16, 0)
+    basic.pause(500)
+    Stop()
+    basic.pause(100)
     pins.analogSetPeriod(AnalogPin.P13, 20000)
+    pins.analogWritePin(AnalogPin.P13, 100)
     pins.digitalWritePin(DigitalPin.P14, 0)
     pins.digitalWritePin(DigitalPin.P15, 0)
     pins.analogSetPeriod(AnalogPin.P16, 20000)
-    pins.analogWritePin(AnalogPin.P13, LPWM)
-    pins.analogWritePin(AnalogPin.P16, RPWM)
+    pins.analogWritePin(AnalogPin.P16, 200)
+    basic.pause(500)
+    Stop()
+    basic.pause(100)
 }
 function ZeroRadiusLeft () {
+    pins.analogSetPeriod(AnalogPin.P13, 20000)
+    pins.analogWritePin(AnalogPin.P13, 200)
+    pins.digitalWritePin(DigitalPin.P14, 0)
+    pins.digitalWritePin(DigitalPin.P15, 0)
+    pins.analogSetPeriod(AnalogPin.P16, 20000)
+    pins.analogWritePin(AnalogPin.P16, 100)
+    basic.pause(500)
+    Stop()
+    basic.pause(100)
     pins.digitalWritePin(DigitalPin.P13, 0)
     pins.analogSetPeriod(AnalogPin.P14, 20000)
+    pins.analogWritePin(AnalogPin.P14, 100)
     pins.analogSetPeriod(AnalogPin.P15, 20000)
+    pins.analogWritePin(AnalogPin.P15, 200)
     pins.digitalWritePin(DigitalPin.P16, 0)
-    pins.analogWritePin(AnalogPin.P14, LPWM)
-    pins.analogWritePin(AnalogPin.P15, RPWM)
+    basic.pause(500)
+    Stop()
+    basic.pause(100)
 }
 let nowLDLs = 0
-let Dls = 0
-let LDls = 0
 let latest = 0
-let max = 0
-let min = 0
-let sum = 0
-let PWM_2 = 0
-let PWM_1 = 0
 let FrontDis = 0
 let LeftDis = 0
-let baseLine = 0
 let errLDiS = 0
 let 差距 = 0
-let PWM = 0
-let RPWM = 0
 let LPWM = 0
+let RPWM = 0
+let FrontSensorClearanceDis = 0
+let LeftSensorExpectedDis = 0
+let LeftSensorLocation = 0
 bluetooth.startUartService()
 InitSensor()
-LPWM = 600
-RPWM = LPWM - 70
-let minDis = 200
-PWM = 512
+let WallMazeWidth = 120
+LeftSensorLocation = 20
+let FrontSensorLocation = 30
+LeftSensorExpectedDis = WallMazeWidth / 2 - LeftSensorLocation
+FrontSensorClearanceDis = WallMazeWidth / 2 - FrontSensorLocation
+RPWM = 300
+LPWM = 300
 差距 = 0.8
 errLDiS = 0.5
-baseLine = 25
-let HeadDisHistory = [baseLine, baseLine]
-let LDisHistory = [baseLine, baseLine]
+let baseLine = 15
 control.raiseEvent(
 EventBusSource.MES_BROADCAST_GENERAL_ID,
 EventBusValue.MES_ALERT_EVT_ALARM1
