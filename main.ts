@@ -58,14 +58,14 @@ function GoStraight () {
     latest = LeftDis
     basic.pause(100)
     while (true) {
-        if (LeftDis > 120 || FrontDis < FrontSensorClearanceDis) {
+        if (LeftDis > WallMazeWidth || FrontDis < FrontSensorClearanceDis) {
             break;
         }
         nowLDLs = LeftDis
-        if (nowLDLs < LeftSensorExpectedDis - LeftSensorExpectedDis / 2 && !(nowLDLs - latest > errLDiS)) {
+        if (nowLDLs < LeftSensorExpectedDis - 10 && !(nowLDLs - latest > errLDiS)) {
             TurnRight()
             basic.pause(50)
-        } else if (nowLDLs > LeftSensorExpectedDis + LeftSensorExpectedDis / 2 && !(latest - nowLDLs > errLDiS)) {
+        } else if (nowLDLs > LeftSensorExpectedDis + 10 && !(latest - nowLDLs > errLDiS)) {
             TurnLeft()
             basic.pause(50)
         }
@@ -101,7 +101,7 @@ control.onEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, EventBusValue.MES_ALERT
     basic.pause(1000)
     basic.showIcon(IconNames.Heart)
     while (true) {
-        if (LeftDis > 120) {
+        if (LeftDis > WallMazeWidth) {
             Left90Turning()
         } else if (FrontDis < FrontSensorClearanceDis) {
             Right90Turning()
@@ -161,9 +161,10 @@ let RPWM = 0
 let FrontSensorClearanceDis = 0
 let LeftSensorExpectedDis = 0
 let LeftSensorLocation = 0
+let WallMazeWidth = 0
 bluetooth.startUartService()
 InitSensor()
-let WallMazeWidth = 120
+WallMazeWidth = 120
 LeftSensorLocation = 20
 let FrontSensorLocation = 30
 LeftSensorExpectedDis = WallMazeWidth / 2 - LeftSensorLocation
@@ -171,8 +172,7 @@ FrontSensorClearanceDis = WallMazeWidth / 2 - FrontSensorLocation
 RPWM = 190
 LPWM = 200
 差距 = 0.7
-errLDiS = 0.5
-let baseLine = 15
+errLDiS = 4
 control.raiseEvent(
 EventBusSource.MES_BROADCAST_GENERAL_ID,
 EventBusValue.MES_ALERT_EVT_ALARM1
