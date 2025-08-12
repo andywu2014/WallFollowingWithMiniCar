@@ -62,10 +62,10 @@ function GoStraight () {
             break;
         }
         nowLDLs = LeftDis
-        if (nowLDLs < LeftSensorExpectedDis) {
+        if (nowLDLs < LeftSensorExpectedDis - LeftSensorExpectedDis / 2 && !(nowLDLs - latest > errLDiS)) {
             TurnRight()
             basic.pause(50)
-        } else if (nowLDLs > LeftSensorExpectedDis) {
+        } else if (nowLDLs > LeftSensorExpectedDis + LeftSensorExpectedDis / 2 && !(latest - nowLDLs > errLDiS)) {
             TurnLeft()
             basic.pause(50)
         }
@@ -154,6 +154,7 @@ let nowLDLs = 0
 let latest = 0
 let FrontDis = 0
 let LeftDis = 0
+let errLDiS = 0
 let 差距 = 0
 let LPWM = 0
 let RPWM = 0
@@ -170,7 +171,7 @@ FrontSensorClearanceDis = WallMazeWidth / 2 - FrontSensorLocation
 RPWM = 190
 LPWM = 200
 差距 = 0.7
-let errLDiS = 0.5
+errLDiS = 0.5
 let baseLine = 15
 control.raiseEvent(
 EventBusSource.MES_BROADCAST_GENERAL_ID,
