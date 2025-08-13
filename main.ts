@@ -44,18 +44,6 @@ function Right90Turning () {
         }
     }
 }
-input.onButtonPressed(Button.A, function () {
-    bluetooth.uartWriteValue("L", LeftDis)
-})
-// FrontSensor
-VL6180.continualRange(43, function (value) {
-    if (Math.abs(value - FrontDis) >= 10) {
-        FrontDis = value
-        VL6180.clearBuffer(43)
-    } else {
-        FrontDis = VL6180.averageLastest(43, 5)
-    }
-})
 function GoStraight () {
     latest = LeftDis
     basic.pause(100)
@@ -134,6 +122,15 @@ function Left90Turning () {
         }
     }
 }
+// FrontSensor
+VL6180.continualRange(43, function (value) {
+    if (Math.abs(value - FrontDis) >= 10) {
+        FrontDis = value
+        VL6180.clearBuffer(43)
+    } else {
+        FrontDis = VL6180.averageLastest(43, 5)
+    }
+})
 function TurnRight () {
     pins.digitalWritePin(DigitalPin.P13, 0)
     pins.analogSetPeriod(AnalogPin.P14, 20000)
@@ -222,7 +219,7 @@ let LeftSensorLocation = 20
 let FrontSensorLocation = 30
 LeftSensorExpectedDis = WallMazeWidth / 2 - LeftSensorLocation
 FrontSensorClearanceDis = WallMazeWidth / 2 - FrontSensorLocation
-RPWM = 180
+RPWM = 200
 LPWM = 200
 差距 = 0.7
 errLDiS = 4
