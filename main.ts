@@ -44,6 +44,13 @@ function Right90Turning () {
         }
     }
 }
+input.onButtonPressed(Button.A, function () {
+    Stop()
+    input.calibrateCompass()
+})
+function end () {
+    ending = true
+}
 function GoStraight () {
     latest = LeftDis
     basic.pause(100)
@@ -52,38 +59,26 @@ function GoStraight () {
             break;
         }
         nowLDLs = LeftDis
+        bluetooth.uartWriteLine("left:" + nowLDLs + "; head:" + FrontDis + "; latest:" + latest)
         if (nowLDLs < LeftSensorExpectedDis - 5 && !(nowLDLs - latest > errLDiS)) {
+            bluetooth.uartWriteLine("will turn right")
             TurnRight()
-            basic.pause(50)
+            basic.pause(100)
+            bluetooth.uartWriteLine("turned right")
         } else if (nowLDLs > LeftSensorExpectedDis + 5 && !(latest - nowLDLs > errLDiS)) {
+            bluetooth.uartWriteLine("will turn left")
             TurnLeft()
-            basic.pause(50)
+            basic.pause(100)
+            bluetooth.uartWriteLine(" turned left")
+        } else {
+            bluetooth.uartWriteLine("will go head")
+            Gohead()
+            basic.pause(100)
+            bluetooth.uartWriteLine("went head")
         }
-        Gohead()
-        basic.pause(100)
         latest = nowLDLs
     }
 }
-bluetooth.onUartDataReceived(serial.delimiters(Delimiters.Hash), function () {
-    blecmd = bluetooth.uartReadUntil(serial.delimiters(Delimiters.Hash))
-    blearg = ""
-    let strs = blecmd.split(":", 2)
-blecmd = strs[0]
-    if (strs.length > 1) {
-        blearg = strs[1]
-    }
-    if (blecmd.compare("calLeft") == 0) {
-        bleCalCmd("calLeft", blearg, 42)
-    } else if (blecmd.compare("calHead") == 0) {
-        bleCalCmd("calHead", blearg, 43)
-    } else if (blecmd.compare("leftSensor") == 0) {
-        bluetooth.uartWriteValue("L", LeftDis)
-    } else if (blecmd.compare("frontSensor") == 0) {
-        bluetooth.uartWriteValue("F", FrontDis)
-    } else {
-        bluetooth.uartWriteLine("not support: " + blecmd)
-    }
-})
 function bleCalCmd (cmdstr: string, blearg: string, addr: number) {
     if (blearg.compare("offset") == 0) {
         bluetooth.uartWriteValue("cal-offset", VL6180.rangOffsetCalibration(addr))
@@ -99,6 +94,47 @@ function bleCalCmd (cmdstr: string, blearg: string, addr: number) {
         bluetooth.uartWriteLine("" + cmdstr + ":10times --- the average of latest 10 value")
     }
 }
+bluetooth.onUartDataReceived(serial.delimiters(Delimiters.Hash), function () {
+    blecmd = bluetooth.uartReadUntil(serial.delimiters(Delimiters.Hash))
+    blearg = ""
+    let strs = blecmd.split(" ", 2)
+blecmd = strs[0]
+    if (strs.length > 1) {
+        blearg = strs[1]
+    }
+    if (blecmd.compare("calLeft") == 0) {
+        bleCalCmd("calLeft", blearg, 42)
+    } else if (blecmd.compare("calHead") == 0) {
+        bleCalCmd("calHead", blearg, 43)
+    } else if (blecmd.compare("leftSensor") == 0) {
+        bluetooth.uartWriteValue("L", LeftDis)
+    } else if (blecmd.compare("frontSensor") == 0) {
+        bluetooth.uartWriteValue("F", FrontDis)
+    } else if (blecmd.compare("end") == 0) {
+        end()
+        bluetooth.uartWriteLine(">>end OK!")
+    } else if (blecmd.compare("start") == 0) {
+        control.raiseEvent(
+        EventBusSource.MES_BROADCAST_GENERAL_ID,
+        EventBusValue.MES_ALERT_EVT_ALARM1
+        )
+        bluetooth.uartWriteLine(">>start OK!")
+    } else if (blecmd.compare("test") == 0) {
+        testFunction(blearg)
+    } else {
+        bluetooth.uartWriteLine(">> not support " + blecmd)
+        bluetooth.uartWriteLine(">> only support cmd as follows:")
+        bluetooth.uartWriteLine(">>  start: start car")
+        bluetooth.uartWriteLine(">>  end: stop car")
+        bluetooth.uartWriteLine(">>  test: test func")
+    }
+})
+input.onButtonPressed(Button.B, function () {
+    control.raiseEvent(
+    EventBusSource.MES_BROADCAST_GENERAL_ID,
+    EventBusValue.MES_ALERT_EVT_ALARM1
+    )
+})
 function Left90Turning () {
     Gohead()
     for (let index = 0; index < 5; index++) {
@@ -139,6 +175,14 @@ function TurnRight () {
     pins.analogWritePin(AnalogPin.P14, LPWM)
     pins.analogWritePin(AnalogPin.P15, RPWM * 差距)
 }
+function testFunction (arg: string) {
+    if (arg.compare("right") == 0) {
+        bluetooth.uartWriteLine(">>ok")
+        TurnRight()
+    } else {
+        bluetooth.uartWriteLine(">> only support--- test right: call TurnRight")
+    }
+}
 function Stop () {
     pins.digitalWritePin(DigitalPin.P13, 0)
     pins.digitalWritePin(DigitalPin.P14, 0)
@@ -148,7 +192,7 @@ function Stop () {
 control.onEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, EventBusValue.MES_ALERT_EVT_ALARM1, function () {
     basic.pause(1000)
     basic.showIcon(IconNames.Heart)
-    while (true) {
+    while (ending == false) {
         if (LeftDis > WallMazeWidth) {
             Left90Turning()
         } else if (FrontDis < FrontSensorClearanceDis) {
@@ -199,7 +243,6 @@ function ZeroRadiusLeft () {
     basic.pause(100)
 }
 let blearg = ""
-let blecmd = ""
 let nowLDLs = 0
 let latest = 0
 let Angle = 0
@@ -212,8 +255,11 @@ let RPWM = 0
 let FrontSensorClearanceDis = 0
 let LeftSensorExpectedDis = 0
 let WallMazeWidth = 0
+let ending = false
+let blecmd = ""
 bluetooth.startUartService()
 InitSensor()
+ending = false
 WallMazeWidth = 120
 let LeftSensorLocation = 20
 let FrontSensorLocation = 30
@@ -223,8 +269,4 @@ RPWM = 200
 LPWM = 200
 差距 = 0.7
 errLDiS = 4
-control.raiseEvent(
-EventBusSource.MES_BROADCAST_GENERAL_ID,
-EventBusValue.MES_ALERT_EVT_ALARM1
-)
 bluetooth.uartWriteLine("inited")
