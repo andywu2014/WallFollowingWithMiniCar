@@ -34,6 +34,7 @@ VL6180.continualRange(42, function (value) {
     } else {
         LeftDis = VL6180.averageLastest(42, 5)
     }
+    bluetooth.uartWriteValue("left", LeftDis)
 })
 function Right90Turning () {
     Angle = (input.compassHeading() + 80 + 360) % 360
@@ -51,6 +52,16 @@ input.onButtonPressed(Button.A, function () {
 function end () {
     ending = true
 }
+// FrontSensor
+VL6180.continualRange(43, function (value) {
+    if (Math.abs(value - FrontDis) >= 10) {
+        FrontDis = value
+        VL6180.clearBuffer(43)
+    } else {
+        FrontDis = VL6180.averageLastest(43, 5)
+    }
+    bluetooth.uartWriteValue("front", FrontDis)
+})
 function GoStraight () {
     latest = LeftDis
     basic.pause(100)
@@ -96,37 +107,23 @@ function bleCalCmd (cmdstr: string, blearg: string, addr: number) {
 }
 bluetooth.onUartDataReceived(serial.delimiters(Delimiters.Hash), function () {
     blecmd = bluetooth.uartReadUntil(serial.delimiters(Delimiters.Hash))
-    blearg = ""
-    let strs = blecmd.split(" ", 2)
-blecmd = strs[0]
-    if (strs.length > 1) {
-        blearg = strs[1]
-    }
-    if (blecmd.compare("calLeft") == 0) {
-        bleCalCmd("calLeft", blearg, 42)
-    } else if (blecmd.compare("calHead") == 0) {
-        bleCalCmd("calHead", blearg, 43)
+    if (blecmd.compare("stop") == 0) {
+        bluetooth.uartWriteLine(">>Stop OK")
+        Stop()
     } else if (blecmd.compare("leftSensor") == 0) {
-        bluetooth.uartWriteValue("L", LeftDis)
+        bluetooth.uartWriteLine(">>leftSensor OK")
+        bluetooth.uartWriteLine(convertToText(LeftDis))
     } else if (blecmd.compare("frontSensor") == 0) {
-        bluetooth.uartWriteValue("F", FrontDis)
-    } else if (blecmd.compare("end") == 0) {
-        end()
-        bluetooth.uartWriteLine(">>end OK!")
-    } else if (blecmd.compare("start") == 0) {
-        control.raiseEvent(
-        EventBusSource.MES_BROADCAST_GENERAL_ID,
-        EventBusValue.MES_ALERT_EVT_ALARM1
-        )
-        bluetooth.uartWriteLine(">>start OK!")
-    } else if (blecmd.compare("test") == 0) {
-        testFunction(blearg)
+        bluetooth.uartWriteLine(">>frontSensor OK")
+        bluetooth.uartWriteLine(convertToText(FrontDis))
+    } else if (blecmd.compare("GoStraight") == 0) {
+        bluetooth.uartWriteLine(">>GoStraight OK")
+        GoStraight()
     } else {
-        bluetooth.uartWriteLine(">> not support " + blecmd)
-        bluetooth.uartWriteLine(">> only support cmd as follows:")
-        bluetooth.uartWriteLine(">>  start: start car")
-        bluetooth.uartWriteLine(">>  end: stop car")
-        bluetooth.uartWriteLine(">>  test: test func")
+        bluetooth.uartWriteLine(">>leftSensor:leftSensor")
+        bluetooth.uartWriteLine(">>frontSensor:frontSensor")
+        bluetooth.uartWriteLine(">>GoStraight:GoStraight")
+        bluetooth.uartWriteLine(">>stop:stop car")
     }
 })
 input.onButtonPressed(Button.B, function () {
@@ -158,15 +155,6 @@ function Left90Turning () {
         }
     }
 }
-// FrontSensor
-VL6180.continualRange(43, function (value) {
-    if (Math.abs(value - FrontDis) >= 10) {
-        FrontDis = value
-        VL6180.clearBuffer(43)
-    } else {
-        FrontDis = VL6180.averageLastest(43, 5)
-    }
-})
 function TurnRight () {
     pins.digitalWritePin(DigitalPin.P13, 0)
     pins.analogSetPeriod(AnalogPin.P14, 20000)
@@ -242,7 +230,6 @@ function ZeroRadiusLeft () {
     Stop()
     basic.pause(100)
 }
-let blearg = ""
 let nowLDLs = 0
 let latest = 0
 let Angle = 0
