@@ -87,6 +87,10 @@ function GoStraight () {
             basic.pause(100)
             bluetooth.uartWriteLine("went head")
         }
+        if (stop == 1) {
+            stop = 0
+            break;
+        }
         latest = nowLDLs
     }
 }
@@ -107,18 +111,19 @@ function bleCalCmd (cmdstr: string, blearg: string, addr: number) {
 }
 bluetooth.onUartDataReceived(serial.delimiters(Delimiters.Hash), function () {
     blecmd = bluetooth.uartReadUntil(serial.delimiters(Delimiters.Hash))
-    if (blecmd.compare("stop") == 0) {
-        bluetooth.uartWriteLine(">>Stop OK")
-        Stop()
+    if (blecmd.compare("GoStraight") == 0) {
+        bluetooth.uartWriteLine(">>GoStraight OK")
+        GoStraight()
     } else if (blecmd.compare("leftSensor") == 0) {
         bluetooth.uartWriteLine(">>leftSensor OK")
         bluetooth.uartWriteLine(convertToText(LeftDis))
     } else if (blecmd.compare("frontSensor") == 0) {
         bluetooth.uartWriteLine(">>frontSensor OK")
         bluetooth.uartWriteLine(convertToText(FrontDis))
-    } else if (blecmd.compare("GoStraight") == 0) {
-        bluetooth.uartWriteLine(">>GoStraight OK")
-        GoStraight()
+    } else if (blecmd.compare("stop") == 0) {
+        bluetooth.uartWriteLine(">>Stop OK")
+        stop = 1
+        Stop()
     } else {
         bluetooth.uartWriteLine(">>leftSensor:leftSensor")
         bluetooth.uartWriteLine(">>frontSensor:frontSensor")
@@ -235,6 +240,7 @@ let latest = 0
 let Angle = 0
 let FrontDis = 0
 let LeftDis = 0
+let stop = 0
 let errLDiS = 0
 let 差距 = 0
 let LPWM = 0
@@ -256,4 +262,5 @@ RPWM = 200
 LPWM = 200
 差距 = 0.7
 errLDiS = 4
+stop = 0
 bluetooth.uartWriteLine("inited")
