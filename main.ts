@@ -34,7 +34,9 @@ VL6180.continualRange(42, function (value) {
     } else {
         LeftDis = VL6180.averageLastest(42, 5)
     }
+    bluetooth.uartWriteValue("Farthest", LeftSensorExpectedDis + 5)
     bluetooth.uartWriteValue("left", LeftDis)
+    bluetooth.uartWriteValue("Close to", LeftSensorExpectedDis - 5)
 })
 function Right90Turning () {
     Angle = (input.compassHeading() + 80 + 360) % 360
@@ -66,7 +68,8 @@ function GoStraight () {
     latest = LeftDis
     basic.pause(100)
     while (true) {
-        if (LeftDis > WallMazeWidth || FrontDis < FrontSensorClearanceDis) {
+        if (LeftDis > WallMazeWidth || FrontDis < FrontSensorClearanceDis || stop == 1) {
+            stop = 0
             break;
         }
         nowLDLs = LeftDis
@@ -86,10 +89,6 @@ function GoStraight () {
             Gohead()
             basic.pause(100)
             bluetooth.uartWriteLine("went head")
-        }
-        if (stop == 1) {
-            stop = 0
-            break;
         }
         latest = nowLDLs
     }
@@ -253,7 +252,7 @@ let blecmd = ""
 bluetooth.startUartService()
 InitSensor()
 ending = false
-WallMazeWidth = 120
+WallMazeWidth = 110
 let LeftSensorLocation = 20
 let FrontSensorLocation = 30
 LeftSensorExpectedDis = WallMazeWidth / 2 - LeftSensorLocation
