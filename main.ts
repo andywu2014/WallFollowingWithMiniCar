@@ -28,11 +28,11 @@ function TurnLeft () {
 }
 // LeftSensor
 VL6180.continualRange(42, function (value) {
-    if (Math.abs(value - LeftDis) >= 10) {
-        LeftDis = value
+    if (Math.abs(value + 10 - LeftDis) >= 10) {
+        LeftDis = value + 10
         VL6180.clearBuffer(42)
     } else {
-        LeftDis = VL6180.averageLastest(42, 5)
+        LeftDis = VL6180.averageLastest(42, 5) + 10
     }
     bluetooth.uartWriteValue("Farthest", LeftSensorExpectedDis + 5)
     bluetooth.uartWriteValue("left", LeftDis)
@@ -46,6 +46,9 @@ function Right90Turning () {
             break;
         }
     }
+}
+function CalibrateLeftSensor () {
+    VL6180.offsetCalibrationAt50mm(42, 50)
 }
 input.onButtonPressed(Button.A, function () {
     Stop()
@@ -123,11 +126,18 @@ bluetooth.onUartDataReceived(serial.delimiters(Delimiters.Hash), function () {
         bluetooth.uartWriteLine(">>Stop OK")
         stop = 1
         Stop()
+    } else if (blecmd.compare("calleft") == 0) {
+        bluetooth.uartWriteLine(">>CalibrateLeftSensor OK")
+        CalibrateLeftSensor()
+    } else if (blecmd.compare("leftoffset") == 0) {
+        bluetooth.uartWriteLine(">>" + convertToText(VL6180.rangOffsetCalibration(42)))
     } else {
         bluetooth.uartWriteLine(">>leftSensor:leftSensor")
         bluetooth.uartWriteLine(">>frontSensor:frontSensor")
         bluetooth.uartWriteLine(">>GoStraight:GoStraight")
         bluetooth.uartWriteLine(">>stop:stop car")
+        bluetooth.uartWriteLine(">>calleft:CalibrateLeftSensor")
+        bluetooth.uartWriteLine(">>leftoffset: show left offset")
     }
 })
 input.onButtonPressed(Button.B, function () {
