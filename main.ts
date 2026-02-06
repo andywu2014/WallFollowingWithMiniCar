@@ -6,6 +6,9 @@ function Gohead () {
     pins.analogWritePin(AnalogPin.P14, LPWM)
     pins.analogWritePin(AnalogPin.P15, RPWM)
 }
+function logLine (文本: string) {
+    BleBuffer.push(文本)
+}
 function InitSensor () {
     LeftDis = 0
     FrontDis = 0
@@ -67,31 +70,39 @@ VL6180.continualRange(43, function (value) {
     }
     bluetooth.uartWriteValue("front", FrontDis)
 })
+function logValue (文本: string, 数字: number) {
+    BleBuffer.push("" + 文本 + ":" + convertToText(数字))
+}
 function GoStraight () {
     latest = LeftDis
     basic.pause(100)
     while (true) {
         if (LeftDis > WallMazeWidth || FrontDis < FrontSensorClearanceDis || stop == 1) {
             stop = 0
+            logLine("Break")
             break;
         }
         nowLDLs = LeftDis
-        bluetooth.uartWriteLine("left:" + nowLDLs + "; head:" + FrontDis + "; latest:" + latest)
+        logLine("left:" + nowLDLs + "; head:" + FrontDis + "; latest:" + latest + "；l-now:" + (latest - nowLDLs))
+        // 判断朝向，朝左才向右转
         if (nowLDLs < LeftSensorExpectedDis - 5 && !(nowLDLs - latest > errLDiS)) {
-            bluetooth.uartWriteLine("will turn right")
+            logLine("will turn right")
+            logValue("direc", LeftSensorExpectedDis - 7)
             TurnRight()
             basic.pause(100)
-            bluetooth.uartWriteLine("turned right")
+            logLine("turned right")
         } else if (nowLDLs > LeftSensorExpectedDis + 5 && !(latest - nowLDLs > errLDiS)) {
-            bluetooth.uartWriteLine("will turn left")
+            logLine("will turn left")
+            logValue("direc", LeftSensorExpectedDis + 7)
             TurnLeft()
             basic.pause(100)
-            bluetooth.uartWriteLine(" turned left")
+            logLine(" turned left")
         } else {
-            bluetooth.uartWriteLine("will go head")
+            logLine("will go head")
+            logValue("direc", LeftSensorExpectedDis)
             Gohead()
             basic.pause(100)
-            bluetooth.uartWriteLine("went head")
+            logLine("went head")
         }
         latest = nowLDLs
     }
@@ -116,6 +127,8 @@ bluetooth.onUartDataReceived(serial.delimiters(Delimiters.Hash), function () {
     if (blecmd.compare("GoStraight") == 0) {
         bluetooth.uartWriteLine(">>GoStraight OK")
         GoStraight()
+        bluetooth.uartWriteLine("GoStraight end")
+        Stop()
     } else if (blecmd.compare("leftSensor") == 0) {
         bluetooth.uartWriteLine(">>leftSensor OK")
         bluetooth.uartWriteLine(convertToText(LeftDis))
@@ -196,8 +209,10 @@ control.onEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, EventBusValue.MES_ALERT
     basic.showIcon(IconNames.Heart)
     while (ending == false) {
         if (LeftDis > WallMazeWidth) {
+            bluetooth.uartWriteLine(">>Left90Turning OK")
             Left90Turning()
         } else if (FrontDis < FrontSensorClearanceDis) {
+            bluetooth.uartWriteLine(">>Right90Turning OK")
             Right90Turning()
         } else {
             GoStraight()
@@ -249,6 +264,7 @@ let latest = 0
 let Angle = 0
 let FrontDis = 0
 let LeftDis = 0
+let BleBuffer: string[] = []
 let stop = 0
 let errLDiS = 0
 let 差距 = 0
@@ -272,4 +288,14 @@ LPWM = 200
 差距 = 0.7
 errLDiS = 4
 stop = 0
+BleBuffer = []
 bluetooth.uartWriteLine("inited")
+control.inBackground(function () {
+    while (true) {
+        basic.pause(10)
+        if (BleBuffer.length == 0) {
+            continue;
+        }
+        bluetooth.uartWriteLine(BleBuffer.shift())
+    }
+})
