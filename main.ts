@@ -38,8 +38,8 @@ VL6180.continualRange(42, function (value) {
         LeftDis = VL6180.averageLastest(42, 5) + 10
     }
     bluetooth.uartWriteValue("Farthest", LeftSensorExpectedDis + 5)
+    bluetooth.uartWriteValue("CloseTo", LeftSensorExpectedDis - 5)
     bluetooth.uartWriteValue("left", LeftDis)
-    bluetooth.uartWriteValue("Close to", LeftSensorExpectedDis - 5)
 })
 function Right90Turning () {
     Angle = (input.compassHeading() + 80 + 360) % 360
@@ -83,7 +83,7 @@ function GoStraight () {
             break;
         }
         nowLDLs = LeftDis
-        logLine("left:" + nowLDLs + "; head:" + FrontDis + "; latest:" + latest + "；l-now:" + (latest - nowLDLs))
+        logLine("StLeft:" + nowLDLs + "; head:" + FrontDis + "; latest:" + latest + "；l-now:" + (latest - nowLDLs))
         // 判断朝向，朝左才向右转
         if (nowLDLs < LeftSensorExpectedDis - 5 && !(nowLDLs - latest > errLDiS)) {
             logLine("will turn right")
