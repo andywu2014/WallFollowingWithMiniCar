@@ -5,7 +5,7 @@
         "core": "*",
         "microphone": "*",
         "bluetooth": "*",
-        "vl6180": "github:andywu2014/vl6180#master"
+        "vl6180": "github:andywu2014/vl6180#e25e8d374edb57d4e14af0333ee78bdc4eb62a8a"
     },
     "files": [
         "main.blocks",
