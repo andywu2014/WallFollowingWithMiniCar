@@ -19,8 +19,9 @@ function InitSensor () {
     VL6180.initVL6180(leftSensorAddr)
     pins.digitalWritePin(DigitalPin.P8, 1)
     // FrontSensor
-    VL6180.initVL6180(43)
+    VL6180.initVL6180(frontSensorAddr)
     VL6180.setRangOffsetCalibration(leftSensorAddr, 20)
+    VL6180.setRangOffsetCalibration(frontSensorAddr, 20)
 }
 function TurnLeft () {
     pins.digitalWritePin(DigitalPin.P13, 0)
@@ -29,6 +30,9 @@ function TurnLeft () {
     pins.digitalWritePin(DigitalPin.P16, 0)
     pins.analogWritePin(AnalogPin.P14, LPWM * 差距)
     pins.analogWritePin(AnalogPin.P15, RPWM)
+}
+function readFrontDis () {
+    return VL6180.averageLastest(frontSensorAddr, 5)
 }
 function Right90Turning () {
     Angle = (input.compassHeading() + 80 + 360) % 360
@@ -40,17 +44,18 @@ function Right90Turning () {
     }
 }
 function CalibrateLeftSensor () {
-    VL6180.offsetCalibrationAt50mm(42, 50)
+	
 }
 input.onButtonPressed(Button.A, function () {
     Stop()
     input.calibrateCompass()
 })
-function end () {
-    ending = true
+function logValue (文本: string, 数字: number) {
+    BleBuffer.push("" + 文本 + ":" + convertToText(数字))
 }
 // FrontSensor
-VL6180.continualRange(43, function (value) {
+// 暂停使用,地址随便设为65
+VL6180.continualRange(65, function (value) {
     if (Math.abs(value - FrontDis) >= 10) {
         FrontDis = value
         VL6180.clearBuffer(43)
@@ -58,9 +63,6 @@ VL6180.continualRange(43, function (value) {
         FrontDis = VL6180.averageLastest(43, 5)
     }
 })
-function logValue (文本: string, 数字: number) {
-    BleBuffer.push("" + 文本 + ":" + convertToText(数字))
-}
 function GoStraight () {
     Direction2 = 0
     nowLDLs = readLeftDis()
@@ -140,34 +142,53 @@ bluetooth.onUartDataReceived(serial.delimiters(Delimiters.Hash), function () {
         Stop()
     } else if (blecmd.compare("leftSensor") == 0) {
         bluetooth.uartWriteLine(">>leftSensor OK")
-        bluetooth.uartWriteLine(convertToText(LeftDis))
+        bluetooth.uartWriteLine(convertToText(VL6180.averageLastest(leftSensorAddr, 1)))
     } else if (blecmd.compare("frontSensor") == 0) {
         bluetooth.uartWriteLine(">>frontSensor OK")
-        bluetooth.uartWriteLine(convertToText(FrontDis))
+        bluetooth.uartWriteLine(convertToText(VL6180.averageLastest(frontSensorAddr, 1)))
     } else if (blecmd.compare("stop") == 0) {
         bluetooth.uartWriteLine(">>Stop OK")
         stop = 1
         Stop()
     } else if (blecmd.compare("calleft") == 0) {
+        VL6180.offsetCalibrationAt50mm(leftSensorAddr, 50)
         bluetooth.uartWriteLine(">>CalibrateLeftSensor OK")
-        CalibrateLeftSensor()
     } else if (blecmd.compare("leftoffset") == 0) {
-        bluetooth.uartWriteLine(">>" + convertToText(VL6180.rangOffsetCalibration(42)))
+        bluetooth.uartWriteLine(">>" + convertToText(VL6180.rangOffsetCalibration(LeftSensorLocation)))
     } else if (blecmd.compare("gohead") == 0) {
         bluetooth.uartWriteLine(">>" + "LPWM=" + convertToText(LPWM) + "; RPWM=" + convertToText(RPWM))
         TestGohead()
     } else if (blecmd.compare("setrpwm") == 0 && bleargs.length == 1) {
         RPWM = parseFloat(bleargs.shift())
         bluetooth.uartWriteLine(">>" + "LPWM=" + convertToText(LPWM) + "; RPWM=" + convertToText(RPWM))
+    } else if (blecmd.compare("start") == 0) {
+        bluetooth.uartWriteLine(">>Start OK")
+        control.raiseEvent(
+        EventBusSource.MES_BROADCAST_GENERAL_ID,
+        EventBusValue.MES_ALERT_EVT_ALARM1
+        )
+    } else if (blecmd.compare("turnleft90") == 0) {
+        bluetooth.uartWriteLine(">>Turnleft90 OK")
+        Left90Turning()
+        Stop()
+    } else if (blecmd.compare("frontoffset") == 0) {
+        bluetooth.uartWriteLine(">>" + convertToText(VL6180.rangOffsetCalibration(frontSensorAddr)))
+    } else if (blecmd.compare("calfront") == 0) {
+        VL6180.offsetCalibrationAt50mm(frontSensorAddr, 50)
+        bluetooth.uartWriteLine(">>CalibrateFrontSensor OK")
     } else {
         bluetooth.uartWriteLine(">>leftSensor: leftSensor")
         bluetooth.uartWriteLine(">>frontSensor: frontSensor")
         bluetooth.uartWriteLine(">>GoStraight: GoStraight")
         bluetooth.uartWriteLine(">>stop: stop car")
         bluetooth.uartWriteLine(">>calleft: CalibrateLeftSensor")
+        bluetooth.uartWriteLine(">>calfront: CalibrateFrontSensor")
         bluetooth.uartWriteLine(">>leftoffset: show left offset")
+        bluetooth.uartWriteLine(">>frontoffset: show front offset")
         bluetooth.uartWriteLine(">>gohead: test gohead")
         bluetooth.uartWriteLine(">>setrpwm xxx: set rpwm = xxx(number)")
+        bluetooth.uartWriteLine(">>start: start wall following")
+        bluetooth.uartWriteLine(">>turnleft90: turnleft90")
     }
 })
 function TestGohead () {
@@ -203,7 +224,7 @@ function Left90Turning () {
         }
     }
     Gohead()
-    for (let index = 0; index < 6; index++) {
+    for (let index = 0; index < 25; index++) {
         basic.pause(100)
         if (FrontDis <= FrontSensorClearanceDis) {
             break;
@@ -234,15 +255,16 @@ function Stop () {
 }
 control.onEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, EventBusValue.MES_ALERT_EVT_ALARM1, function () {
     basic.pause(1000)
-    basic.showIcon(IconNames.Heart)
-    while (ending == false) {
-        if (LeftDis > WallMazeWidth) {
-            bluetooth.uartWriteLine(">>Left90Turning OK")
+    basic.showIcon(IconNames.Sword)
+    while (stop == 0) {
+        if (readLeftDis() > WallMazeWidth) {
+            logLine("Left90Turning OK")
             Left90Turning()
         } else if (FrontDis < FrontSensorClearanceDis) {
-            bluetooth.uartWriteLine(">>Right90Turning OK")
+            logLine("Right90Turning OK")
             Right90Turning()
         } else {
+            logLine("GoStraight OK")
             GoStraight()
         }
     }
@@ -304,15 +326,17 @@ let LPWM = 0
 let RPWM = 0
 let FrontSensorClearanceDis = 0
 let LeftSensorExpectedDis = 0
+let LeftSensorLocation = 0
 let WallMazeWidth = 0
-let ending = false
+let frontSensorAddr = 0
 let leftSensorAddr = 0
 bluetooth.startUartService()
 leftSensorAddr = 42
+frontSensorAddr = 43
 InitSensor()
-ending = false
+let ending = false
 WallMazeWidth = 110
-let LeftSensorLocation = 20
+LeftSensorLocation = 20
 let FrontSensorLocation = 30
 LeftSensorExpectedDis = WallMazeWidth / 2 - LeftSensorLocation
 FrontSensorClearanceDis = WallMazeWidth / 2 - FrontSensorLocation
