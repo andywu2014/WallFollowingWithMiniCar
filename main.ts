@@ -179,24 +179,28 @@ function readLeftDis () {
 }
 function Left90Turning () {
     Gohead()
+    logLine("Left90Turning gohead")
     for (let index = 0; index < 5; index++) {
         basic.pause(100)
         if (readFrontDis() <= FrontSensorClearanceDis) {
+            logLine("Left90Turning break")
             break;
         }
     }
     Angle = (input.compassHeading() - 80 + 360) % 360
     for (let index = 0; index < 10; index++) {
+        logLine("Left90Turning before ZeroRadiusLeft")
         ZeroRadiusLeft()
         if (input.compassHeading() <= Angle) {
             break;
         }
     }
     Gohead()
+    logLine("Left90Turning gohead2")
     for (let index = 0; index < 5; index++) {
         basic.pause(100)
         if (readFrontDis() <= FrontSensorClearanceDis) {
-            logLine("Left90Turning break")
+            logLine("Left90Turning break2")
             break;
         }
     }
@@ -273,6 +277,7 @@ function ZeroRadiusLeft () {
     pins.digitalWritePin(DigitalPin.P15, 0)
     pins.analogSetPeriod(AnalogPin.P16, 20000)
     pins.analogWritePin(AnalogPin.P16, 100)
+    logLine("ZeroRadiusLeft front")
     basic.pause(500)
     Stop()
     basic.pause(100)
@@ -282,6 +287,7 @@ function ZeroRadiusLeft () {
     pins.analogSetPeriod(AnalogPin.P15, 20000)
     pins.analogWritePin(AnalogPin.P15, 200)
     pins.digitalWritePin(DigitalPin.P16, 0)
+    logLine("ZeroRadiusLeft back")
     basic.pause(500)
     Stop()
     basic.pause(100)
