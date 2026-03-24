@@ -30,7 +30,8 @@ function TurnLeft () {
     pins.analogWritePin(AnalogPin.P15, RPWM)
 }
 function readFrontDis () {
-    return VL6180.averageLastest(frontSensorAddr, 5)
+    return VL6180.readRange(frontSensorAddr)
+    // return VL6180.averageLastest(frontSensorAddr, 1)
 }
 function Right90Turning () {
     Angle = (input.compassHeading() + 80 + 360) % 360
@@ -174,7 +175,7 @@ input.onButtonPressed(Button.B, function () {
     )
 })
 function readLeftDis () {
-    return VL6180.averageLastest(leftSensorAddr, 5)
+    return VL6180.readRange(leftSensorAddr)
 }
 function Left90Turning () {
     Gohead()
@@ -192,9 +193,10 @@ function Left90Turning () {
         }
     }
     Gohead()
-    for (let index = 0; index < 25; index++) {
+    for (let index = 0; index < 5; index++) {
         basic.pause(100)
         if (readFrontDis() <= FrontSensorClearanceDis) {
+            logLine("Left90Turning break")
             break;
         }
     }
@@ -223,12 +225,19 @@ function Stop () {
 }
 control.onEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, EventBusValue.MES_ALERT_EVT_ALARM1, function () {
     basic.pause(1000)
+    //remove the first value
+    leftDis = readLeftDis()
+    frontDis = readFrontDis()
     basic.showIcon(IconNames.Sword)
     while (stop == 0) {
-        if (readLeftDis() > WallMazeWidth) {
+        leftDis = readLeftDis()
+        frontDis = readFrontDis()
+        logValue("frontDis", frontDis)
+        logValue("leftDis", leftDis)
+        if (leftDis > WallMazeWidth) {
             logLine("Left90Turning OK")
             Left90Turning()
-        } else if (readFrontDis() < FrontSensorClearanceDis) {
+        } else if (frontDis < FrontSensorClearanceDis) {
             logLine("Right90Turning OK")
             Right90Turning()
         } else {
@@ -277,6 +286,8 @@ function ZeroRadiusLeft () {
     Stop()
     basic.pause(100)
 }
+let frontDis = 0
+let leftDis = 0
 let blecmd = ""
 let bleargs: string[] = []
 let latest = 0
