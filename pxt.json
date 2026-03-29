@@ -21,7 +21,7 @@
     "supportedTargets": [
         "microbit"
     ],
-    "preferredEditor": "blocksprj",
+    "preferredEditor": "tsprj",
     "languageRestriction": "javascript-only",
     "yotta": {
         "config": {
