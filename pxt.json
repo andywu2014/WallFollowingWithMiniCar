@@ -22,6 +22,7 @@
         "microbit"
     ],
     "preferredEditor": "blocksprj",
+    "languageRestriction": "javascript-only",
     "yotta": {
         "config": {
             "microbit-dal": {
