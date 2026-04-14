@@ -1,3 +1,6 @@
+import logLine = BleLog.logLine
+import logValue = BleLog.logValue
+
 function Gohead () {
     pins.digitalWritePin(DigitalPin.P13, 0)
     pins.analogSetPeriod(AnalogPin.P14, 20000)
@@ -6,9 +9,7 @@ function Gohead () {
     pins.analogWritePin(AnalogPin.P14, LPWM)
     pins.analogWritePin(AnalogPin.P15, RPWM)
 }
-function logLine (文本: string) {
-    BleBuffer.push(文本)
-}
+
 function InitSensor () {
     pins.digitalWritePin(DigitalPin.P8, 0)
     pins.digitalWritePin(DigitalPin.P2, 0)
@@ -46,9 +47,7 @@ input.onButtonPressed(Button.A, function () {
     Stop()
     input.calibrateCompass()
 })
-function logValue (文本: string, 数字: number) {
-    BleBuffer.push("" + 文本 + ":" + convertToText(数字))
-}
+
 function GoStraight () {
     Direction2 = 0
     nowLDLs = readLeftDis()
@@ -300,7 +299,7 @@ let latest = 0
 let nowLDLs = 0
 let Direction2 = 0
 let Angle = 0
-let BleBuffer: string[] = []
+
 let stop = 0
 let errLDiS = 0
 let 差距 = 0
@@ -327,14 +326,6 @@ LPWM = 200
 差距 = 0.7
 errLDiS = 4
 stop = 0
-BleBuffer = []
+
 bluetooth.uartWriteLine("inited")
-control.inBackground(function () {
-    while (true) {
-        basic.pause(10)
-        if (BleBuffer.length == 0) {
-            continue;
-        }
-        bluetooth.uartWriteLine(BleBuffer.shift())
-    }
-})
+
