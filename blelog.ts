@@ -1,7 +1,7 @@
 
 
 
-namespace BleLog {
+namespace bleLog {
 	const BleBuffer: string[] = []
 
 	export function logLine (text: string) {
@@ -21,4 +21,8 @@ namespace BleLog {
 			bluetooth.uartWriteLine(BleBuffer.shift())
 		}
 	})
+
+	export function response(res: string) {
+		bluetooth.uartWriteLine(">>" + res)
+	}
 }
