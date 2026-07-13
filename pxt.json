@@ -11,10 +11,10 @@
         "main.ts",
         "README.md",
         "blelog.ts",
-			"carstate.ts",
-			"minitank.ts",
-			"sensor.ts",
-			"wallfollowing.ts"
+        "carstate.ts",
+        "minitank.ts",
+        "sensor.ts",
+        "wallfollowing.ts"
     ],
     "testFiles": [
         "test.ts"
