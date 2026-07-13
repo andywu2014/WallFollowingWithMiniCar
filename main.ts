@@ -20,9 +20,45 @@ function end() {
 bluetooth.startUartService()
 bluetooth.uartWriteLine("inited")
 
+class cmd {
+	constructor(public name: string, public helpInfo: string, public doWhat: ()=>void) {}
+}
+
+const allCmds = [
+	new cmd("GoStraight", "GoStraight", ()=>{
+		bleLog.response("GoStraight OK")
+		wallFollowing.GoStraight()
+		miniTank.Stop()}),
+
+	new cmd("leftSensor", "leftSensor", ()=>{
+		bleLog.response("leftSensor OK")
+		bluetooth.uartWriteLine(convertToText(VL6180.averageLastest(sensor.leftSensorAddr, 1)))
+	})
+]
+
+
 bluetooth.onUartDataReceived(serial.delimiters(Delimiters.Hash), function () {
 	let bleargs = bluetooth.uartReadUntil(serial.delimiters(Delimiters.Hash)).split(" ")
 	let blecmd = bleargs.shift()
+
+	let found = false
+	for (const c of allCmds) {
+		if (blecmd.compare(c.name) != 0) {
+			continue
+		}
+
+		found = true
+		c.doWhat()
+		break
+	}
+
+	if (!found) {
+		for (const c of allCmds) {
+			bleLog.response(c.name + ": " + c.helpInfo)
+		}
+	}
+
+	// todo: delete
 
 	if (blecmd.compare("GoStraight") == 0) {
 		bleLog.response("GoStraight OK")
