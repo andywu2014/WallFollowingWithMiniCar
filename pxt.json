@@ -11,16 +11,16 @@
         "main.ts",
         "README.md",
         "blelog.ts",
-			"carstate.ts",
-			"minitank.ts",
-			"sensor.ts",
-			"wallfollowing.ts"
+        "carstate.ts",
+        "minitank.ts",
+        "sensor.ts",
+        "wallfollowing.ts"
     ],
     "testFiles": [
         "test.ts"
     ],
     "targetVersions": {
-        "target": "8.0.18",
+        "target": "9.0.2",
         "targetId": "microbit"
     },
     "supportedTargets": [
