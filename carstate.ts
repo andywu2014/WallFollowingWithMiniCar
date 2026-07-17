@@ -13,4 +13,12 @@ namespace carState {
 	}
 
 	let end = false
+
+	class State {
+		stop: boolean
+		leftDistance: number
+		frontDistance: number
+    angel: number
+
+	}
 }
