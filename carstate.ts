@@ -19,7 +19,9 @@ namespace carState {
 
 	let end = false
 
-	class State {
+	//todo 方便新建State
+	export class State {
+		valid : boolean = false
 		stop: boolean
 		leftDistance: number
 		frontDistance: number
@@ -28,28 +30,18 @@ namespace carState {
 	}
 
 	const HistoryLen = 5
-	class History{
+	export class History{
 		// hisIndex : 0, -1, -2 ... -MaxLen
 		get(hisIndex: number): State {
-			// hisIndex ---> 3?
-			// todo 2-4=-2 但应该是3
-			// todo 整合在一起
-			if (hisIndex == 0) {
-				return this.allHistories[this.latestIndex]
+			if (hisIndex <= -HistoryLen || hisIndex > 0) {
+			  return new State()
 			}
-			if (hisIndex == -1) {
-				return this.allHistories[this.latestIndex-1]
+			// let index = (this.latestIndex + hisIndex + HistoryLen) % HistoryLen
+			let index = this.latestIndex + hisIndex
+			if (index < 0) {
+				index = index + HistoryLen
 			}
-			if (hisIndex == -2) {
-				return this.allHistories[this.latestIndex-2]
-			}
-			if (hisIndex == -3) {
-				return this.allHistories[this.latestIndex-3]
-			}
-			if (hisIndex == -4) {
-				return this.allHistories[this.latestIndex-4]
-			}
-			return this.allHistories[3]
+			return this.allHistories[index]
 		}
 
 		setLatest(v: State) {
@@ -62,4 +54,6 @@ namespace carState {
 		allHistories: State[] = []
 		latestIndex: number = -1
 	}
+
+	let history = new History()
 }
