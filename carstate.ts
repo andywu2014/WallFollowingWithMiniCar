@@ -19,17 +19,22 @@ namespace carState {
 
 	let end = false
 
+	export enum Driving {
+		Stop, GoingHead, SlightRight, SlightLeft, Prepare
+	}
+
 	//todo 方便新建State
 	export class State {
 		valid : boolean = false
-		stop: boolean
+		driving: Driving
 		leftDistance: number
 		frontDistance: number
     angel: number
 		time: number
+
 	}
 
-	const HistoryLen = 5
+	export const HistoryLen = 5
 	export class History{
 		// hisIndex : 0, -1, -2 ... -MaxLen
 		get(hisIndex: number): State {
@@ -55,5 +60,5 @@ namespace carState {
 		latestIndex: number = -1
 	}
 
-	let history = new History()
+	export const history = new History()
 }
