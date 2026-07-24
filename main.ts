@@ -195,7 +195,7 @@ function testFunction (arg: string) {
 }
 
 control.onEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, EventBusValue.MES_ALERT_EVT_ALARM1, function () {
-	wallFollowing.run()
+	wallFollowing2.start()
 })
 
 sensor.InitSensor()
