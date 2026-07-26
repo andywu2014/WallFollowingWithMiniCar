@@ -1,5 +1,7 @@
 
 namespace wallFollowing2 {
+	import Driving = carState.Driving
+	import Stop = miniTank.Stop
 	const errLDiS = 4
 
 	export function start() {
@@ -36,14 +38,14 @@ namespace wallFollowing2 {
 
 		let state_1 = carState.history.get(-1)
 		let diff = state_1.leftDistance - state0.leftDistance
-
-		if (state0.leftDistance < maze.LeftSensorExpectedDis - 5 && state0.driving == carState.Driving.GoingHead && diff > errLDiS) {
+		const AllowedDrift = 5
+		if (state0.leftDistance < maze.LeftSensorExpectedDis - AllowedDrift && state0.driving == carState.Driving.GoingHead && diff > errLDiS) {
 			miniTank.TurnRight()
 			nowState.driving = carState.Driving.SlightRight
 			return 800
 		}
 
-		if (state0.leftDistance > maze.LeftSensorExpectedDis + 5 && state0.driving == carState.Driving.GoingHead && diff < errLDiS * -1) {
+		if (state0.leftDistance > maze.LeftSensorExpectedDis + AllowedDrift && state0.driving == carState.Driving.GoingHead && diff < errLDiS * -1) {
 			miniTank.TurnLeft()
 			nowState.driving = carState.Driving.SlightLeft
 			return 800
@@ -55,6 +57,10 @@ namespace wallFollowing2 {
 			nowState.driving = carState.Driving.GoingHead
 			return 800
 		}
+
+		//todo stop
+		nowState.driving = carState.Driving.Stop
+		return 0
 	}
 
 }

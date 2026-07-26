@@ -24,6 +24,7 @@ namespace carState {
 	}
 
 	//todo 方便新建State
+	//todo 写出构造函数
 	export class State {
 		valid : boolean = false
 		driving: Driving
