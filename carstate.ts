@@ -1,5 +1,7 @@
 
 namespace carState {
+	import Stop = miniTank.Stop
+
 	export function isEnd(): boolean {
 		return end
 	}
@@ -26,13 +28,19 @@ namespace carState {
 	//todo 方便新建State
 	//todo 写出构造函数
 	export class State {
-		valid : boolean = false
 		driving: Driving
 		leftDistance: number
 		frontDistance: number
     angel: number
 		time: number
 
+		constructor(){
+			this.driving = Driving.Stop
+			this.leftDistance = 0
+			this.frontDistance = 0
+			this.angel = 0
+			this.time = 0
+		}
 	}
 
 	export const HistoryLen = 5
@@ -59,6 +67,12 @@ namespace carState {
 		// todo new
 		allHistories: State[] = []
 		latestIndex: number = -1
+		constructor(){
+			this.allHistories = []
+			this.latestIndex = -1
+		}
+
+
 	}
 
 	export const history = new History()
