@@ -8,3 +8,6 @@ deploy:
 
 test:
 	pxt test
+
+install:
+	pxt install
