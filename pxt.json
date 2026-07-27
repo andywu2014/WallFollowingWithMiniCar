@@ -5,7 +5,7 @@
         "core": "*",
         "microphone": "*",
         "bluetooth": "*",
-        "vl6180": "github:andywu2014/vl6180#e25e8d374edb57d4e14af0333ee78bdc4eb62a8a"
+        "vl6180": "github:andywu2014/vl6180#d1057b0322238390d52535b947171d1b5b1743e8"
     },
     "files": [
         "main.ts",
@@ -30,6 +30,9 @@
     ],
     "preferredEditor": "tsprj",
     "languageRestriction": "javascript-only",
+    "disablesVariants": [
+        "mbdal"
+    ],
     "yotta": {
         "config": {
             "microbit-dal": {
