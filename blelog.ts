@@ -8,7 +8,7 @@ namespace bleLog {
 	}
 
 	class EventObjectBuffer<T> {
-		static LEN = 3
+		static LEN = 10
 		private static EmptyFlag = -1
 
 		buffer: BufferValue<T>[] = []
@@ -39,7 +39,7 @@ namespace bleLog {
 				this.head = this.tail
 			} else if (this.head == this.tail) {
 				// 丢弃最旧的数据
-				this.tail++
+				this.tail = this.incIndex(this.tail)
 			}
 
 			this.buffer[this.head] = val
@@ -52,6 +52,7 @@ namespace bleLog {
 				return {val: this.zeroValue, ok: false}
 			}
 			let tailV = this.buffer[this.tail]
+			// n 是严格单调递增，找不到，说明数据已经丢弃了
 			if (tailV.n > n) {
 				return {val: this.zeroValue, ok: false}
 			}
