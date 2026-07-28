@@ -8,11 +8,8 @@ namespace wallFollowing2 {
 		let state = new carState.State()
 		state.leftDistance = sensor.readLeftDis()
 		state.frontDistance = sensor.readFrontDis()
-		state.driving = carState.Driving.Prepare
-
-		for (let i = 0; i < carState.HistoryLen; i++) {
-			carState.history.setLatest(state)
-		}
+		state.driving = carState.Driving.Ready
+		carState.history.setLatest(state)
 
 		while(true) {
 			let nowState = new carState.State()
@@ -28,11 +25,10 @@ namespace wallFollowing2 {
 
 	}
 
-	//
 	function autoDrive(nowState: carState.State): number {
 		let state0 = carState.history.get(0)
 		if (state0.driving == carState.Driving.Stop) {
-			// todo stop
+			miniTank.Stop()
 			return 0
 		}
 
@@ -51,14 +47,14 @@ namespace wallFollowing2 {
 			return 800
 		}
 
-		if (state0.driving == carState.Driving.Prepare || state0.driving == carState.Driving.SlightLeft
+		if (state0.driving == carState.Driving.Ready || state0.driving == carState.Driving.SlightLeft
 			|| state0.driving == carState.Driving.SlightRight) {
 			miniTank.Gohead()
 			nowState.driving = carState.Driving.GoingHead
 			return 800
 		}
 
-		//todo stop
+		miniTank.Stop()
 		nowState.driving = carState.Driving.Stop
 		return 0
 	}
