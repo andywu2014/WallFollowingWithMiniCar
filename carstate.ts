@@ -22,11 +22,9 @@ namespace carState {
 	let end = false
 
 	export enum Driving {
-		Stop, GoingHead, SlightRight, SlightLeft, Prepare
+		Stop, GoingHead, SlightRight, SlightLeft, Ready
 	}
 
-	//todo 方便新建State
-	//todo 写出构造函数
 	export class State {
 		driving: Driving
 		leftDistance: number
@@ -64,14 +62,14 @@ namespace carState {
 			this.latestIndex = index
 		}
 
-		// todo new
 		allHistories: State[] = []
 		latestIndex: number = -1
 		constructor(){
-			this.allHistories = []
+			for (let i = 0; i < HistoryLen; i++) {
+				this.allHistories.push(new State())
+			}
 			this.latestIndex = -1
 		}
-
 
 	}
 
