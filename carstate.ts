@@ -24,6 +24,10 @@ namespace carState {
 	export enum Driving {
 		Stop, GoingHead, SlightRight, SlightLeft, Ready
 	}
+	const drivingStrs: string[] = ["Stop", "GoingHead", "SlightRight", "SlightLeft", "Ready"]
+	export function DrivingToStr(d: Driving): string {
+		return drivingStrs[d]
+	}
 
 	export class State {
 		driving: Driving
@@ -38,6 +42,12 @@ namespace carState {
 			this.frontDistance = 0
 			this.angel = 0
 			this.time = 0
+		}
+
+		toLog(): string {
+			return "time:" + convertToText(this.time) + "; driving:" + carState.DrivingToStr(this.driving)
+				+ "; left:" + convertToText(this.leftDistance) +"; front:" + convertToText(this.frontDistance)
+				// + "; angel:" + convertToText(this.angel)
 		}
 	}
 

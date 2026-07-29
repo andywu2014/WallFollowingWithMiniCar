@@ -1,6 +1,6 @@
 
 namespace miniTank {
-	export function Gohead () {
+	export function Gohead() {
 		pins.digitalWritePin(DigitalPin.P13, 0)
 		pins.analogSetPeriod(AnalogPin.P14, 20000)
 		pins.analogSetPeriod(AnalogPin.P15, 20000)
@@ -9,7 +9,7 @@ namespace miniTank {
 		pins.analogWritePin(AnalogPin.P15, RPWM)
 	}
 
-	export function TurnLeft () {
+	export function TurnLeft() {
 		pins.digitalWritePin(DigitalPin.P13, 0)
 		pins.analogSetPeriod(AnalogPin.P14, 20000)
 		pins.analogSetPeriod(AnalogPin.P15, 20000)
@@ -18,7 +18,7 @@ namespace miniTank {
 		pins.analogWritePin(AnalogPin.P15, RPWM)
 	}
 
-	export function TurnRight () {
+	export function TurnRight() {
 		pins.digitalWritePin(DigitalPin.P13, 0)
 		pins.analogSetPeriod(AnalogPin.P14, 20000)
 		pins.analogSetPeriod(AnalogPin.P15, 20000)
@@ -27,14 +27,14 @@ namespace miniTank {
 		pins.analogWritePin(AnalogPin.P15, RPWM * diff)
 	}
 
-	export function Stop () {
+	export function Stop() {
 		pins.digitalWritePin(DigitalPin.P13, 0)
 		pins.digitalWritePin(DigitalPin.P14, 0)
 		pins.digitalWritePin(DigitalPin.P15, 0)
 		pins.digitalWritePin(DigitalPin.P16, 0)
 	}
 
-	export function ZeroRadiusRight () {
+	export function ZeroRadiusRight() {
 		pins.digitalWritePin(DigitalPin.P13, 0)
 		pins.analogSetPeriod(AnalogPin.P14, 20000)
 		pins.analogWritePin(AnalogPin.P14, 200)
@@ -55,7 +55,7 @@ namespace miniTank {
 		basic.pause(100)
 	}
 
-	export function ZeroRadiusLeft () {
+	export function ZeroRadiusLeft() {
 		pins.analogSetPeriod(AnalogPin.P13, 20000)
 		pins.analogWritePin(AnalogPin.P13, 200)
 		pins.digitalWritePin(DigitalPin.P14, 0)

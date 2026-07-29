@@ -1,54 +1,77 @@
 
 namespace wallFollowing2 {
 	import Driving = carState.Driving
-	import Stop = miniTank.Stop
 	const errLDiS = 4
 
 	export function start() {
-		let state = new carState.State()
-		state.leftDistance = sensor.readLeftDis()
-		state.frontDistance = sensor.readFrontDis()
-		state.driving = carState.Driving.Ready
-		carState.history.setLatest(state)
+		basic.showNumber(0)
+		ready()
+		basic.showNumber(1)
 
 		while(true) {
 			let nowState = new carState.State()
-
 			let drivingDurationMs = autoDrive(nowState)
 
 			basic.pause(drivingDurationMs)
-
 			nowState.leftDistance = sensor.readLeftDis()
+			nowState.frontDistance = sensor.readFrontDis()
+			nowState.time = control.millis()
 			carState.history.setLatest(nowState)
 
+			// bleLog.logValue("left",nowState.leftDistance)
+			// bleLog.logValue("front",nowState.frontDistance)
+			// bleLog.logLine("driving: " + carState.DrivingToStr(nowState.driving))
+			// bleLog.logValue("time",nowState.time)
+			// bleLog.logValue("angel",nowState.angel)
+			bleLog.logLine(nowState.toLog())
+
+			if (nowState.driving == carState.Driving.Stop) {
+				bleLog.logLine("break")
+				break
+			}
 		}
 
 	}
 
+	function ready(){
+		let state = new carState.State()
+		state.leftDistance = sensor.readLeftDis()
+		state.frontDistance = sensor.readFrontDis()
+		state.driving = carState.Driving.Ready
+		state.time = control.millis()
+		carState.history.setLatest(state)
+	}
+
 	function autoDrive(nowState: carState.State): number {
+		const minFrontDis = 40
 		let state0 = carState.history.get(0)
 		if (state0.driving == carState.Driving.Stop) {
 			miniTank.Stop()
 			return 0
 		}
-
 		let state_1 = carState.history.get(-1)
 		let diff = state_1.leftDistance - state0.leftDistance
 		const AllowedDrift = 5
-		if (state0.leftDistance < maze.LeftSensorExpectedDis - AllowedDrift && state0.driving == carState.Driving.GoingHead && diff > errLDiS) {
+		if (state0.leftDistance < maze.LeftSensorExpectedDis - AllowedDrift && state0.driving == carState.Driving.GoingHead && diff > errLDiS
+				&& state0.frontDistance > minFrontDis) {
+			bleLog.logLine("TurnRight OK")
 			miniTank.TurnRight()
 			nowState.driving = carState.Driving.SlightRight
 			return 800
 		}
 
-		if (state0.leftDistance > maze.LeftSensorExpectedDis + AllowedDrift && state0.driving == carState.Driving.GoingHead && diff < errLDiS * -1) {
+		if (state0.leftDistance > maze.LeftSensorExpectedDis + AllowedDrift && state0.driving == carState.Driving.GoingHead && diff < errLDiS * -1
+			&& state0.frontDistance > minFrontDis) {
+			bleLog.logLine("TurnLeft OK")
 			miniTank.TurnLeft()
 			nowState.driving = carState.Driving.SlightLeft
 			return 800
 		}
 
-		if (state0.driving == carState.Driving.Ready || state0.driving == carState.Driving.SlightLeft
-			|| state0.driving == carState.Driving.SlightRight) {
+		if ((state0.driving == carState.Driving.Ready || state0.driving == carState.Driving.SlightLeft
+			|| state0.driving == carState.Driving.SlightRight || state0.driving == carState.Driving.GoingHead)
+			&& state0.frontDistance > minFrontDis) {
+			bleLog.logLine("GoHead OK")
 			miniTank.Gohead()
 			nowState.driving = carState.Driving.GoingHead
 			return 800
