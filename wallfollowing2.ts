@@ -1,6 +1,7 @@
 
 namespace wallFollowing2 {
 	import Driving = carState.Driving
+	import logLine = bleLog.logLine
 	const errLDiS = 4
 
 	export function start() {
@@ -49,8 +50,16 @@ namespace wallFollowing2 {
 			miniTank.Stop()
 			return 0
 		}
+
 		let state_1 = carState.history.get(-1)
-		let diff = state_1.leftDistance - state0.leftDistance
+		let history_id = -1
+		while(history_id > -carState.HistoryLen + 1 && carState.history.get(history_id).driving == Driving.GoingHead){
+			history_id = history_id - 1
+		}
+		let goHeadMax = carState.history.get(history_id).leftDistance
+		let diff = goHeadMax - state0.leftDistance
+		bleLog.logValue("diff", diff)
+
 		const AllowedDrift = 5
 		if (state0.leftDistance < maze.LeftSensorExpectedDis - AllowedDrift && state0.driving == carState.Driving.GoingHead && diff > errLDiS
 				&& state0.frontDistance > minFrontDis) {
