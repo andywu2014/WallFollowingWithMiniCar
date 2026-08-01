@@ -22,7 +22,7 @@ namespace carState {
 	let end = false
 
 	export enum Driving {
-		Stop, GoingHead, SlightRight, SlightLeft, Ready
+		Stop, Ready, GoingHead, SlightRight, SlightLeft, rightBack, leftBack, goingTargetDist
 	}
 	const drivingStrs: string[] = ["Stop", "GoingHead", "SlightRight", "SlightLeft", "Ready"]
 	export function DrivingToStr(d: Driving): string {

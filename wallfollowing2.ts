@@ -2,6 +2,8 @@
 namespace wallFollowing2 {
 	import Driving = carState.Driving
 	import logLine = bleLog.logLine
+	import WallMazeWidth = maze.WallMazeWidth
+	import Left90Turning = wallFollowing.Left90Turning
 	const errLDiS = 4
 
 	export function start() {
@@ -19,11 +21,6 @@ namespace wallFollowing2 {
 			nowState.time = control.millis()
 			carState.history.setLatest(nowState)
 
-			// bleLog.logValue("left",nowState.leftDistance)
-			// bleLog.logValue("front",nowState.frontDistance)
-			// bleLog.logLine("driving: " + carState.DrivingToStr(nowState.driving))
-			// bleLog.logValue("time",nowState.time)
-			// bleLog.logValue("angel",nowState.angel)
 			bleLog.logLine(nowState.toLog())
 
 			if (nowState.driving == carState.Driving.Stop) {
@@ -43,7 +40,10 @@ namespace wallFollowing2 {
 		carState.history.setLatest(state)
 	}
 
+	let numCycles = 1
 	function autoDrive(nowState: carState.State): number {
+		bleLog.logValue("numCycles",numCycles)
+		numCycles = numCycles+1
 		const minFrontDis = 40
 		let state0 = carState.history.get(0)
 		if (state0.driving == carState.Driving.Stop) {
@@ -59,6 +59,12 @@ namespace wallFollowing2 {
 		let goHeadMax = carState.history.get(history_id).leftDistance
 		let diff = goHeadMax - state0.leftDistance
 		bleLog.logValue("diff", diff)
+
+		if (state0.leftDistance > WallMazeWidth){
+			bleLog.logLine("Left90Turning OK")
+
+		}
+
 
 		const AllowedDrift = 5
 		if (state0.leftDistance < maze.LeftSensorExpectedDis - AllowedDrift && state0.driving == carState.Driving.GoingHead && diff > errLDiS
@@ -90,5 +96,7 @@ namespace wallFollowing2 {
 		nowState.driving = carState.Driving.Stop
 		return 0
 	}
+
+
 
 }
