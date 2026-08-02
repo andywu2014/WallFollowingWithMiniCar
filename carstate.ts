@@ -35,7 +35,6 @@ namespace carState {
 		frontDistance: number
     angel: number
 		time: number
-		
 
 		constructor(){
 			this.driving = Driving.Stop
