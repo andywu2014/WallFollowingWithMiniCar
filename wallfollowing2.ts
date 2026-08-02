@@ -37,7 +37,8 @@ namespace wallFollowing2 {
 		state.frontDistance = sensor.readFrontDis()
 		state.driving = carState.Driving.Ready
 		state.time = control.millis()
-
+		state.speed = 0
+		state.distance = 0
 		carState.history.setLatest(state)
 	}
 
@@ -61,26 +62,24 @@ namespace wallFollowing2 {
 		let diff = goHeadMax - state0.leftDistance
 		bleLog.logValue("diff", diff)
 
-		if (state0.leftDistance > WallMazeWidth){
-			bleLog.logLine("Left90Turning OK")
 
-		}
 		if (state0.driving == Driving.GoingTargetDist) {
-			let S0 = 0
-			let S1 = 0
-			let V0 = 0
-			let V1 = 0
-			const deltaT = 300
 			let deltaV = 0
+			let deltaT = 300
 			let deltaS = 0
-			while (S1 < 30) {
-				deltaV = input.acceleration(Dimension.X) * deltaT
-				V1 = V0 + deltaV
-				deltaS = ((V1 + V0) * deltaT) / 2
-				S1 = S0 + deltaS
-				S0 = S1
-				V0 = V1
+			let V1 = 0
+			let S1 = 0
+			deltaV = -input.acceleration(Dimension.Y) * deltaT
+			V1 = state0.speed + deltaV
+			deltaS = ((V1 + state0.speed) * deltaT) / 2
+			S1 = state0.distance + deltaS
+			state0.distance = S1
+			state0.speed = V1
+			if (S1 == 30){
+				//todo 设置driving
+				return 0
 			}
+
 		}
 		const AllowedDrift = 5
 		if (state0.leftDistance < maze.LeftSensorExpectedDis - AllowedDrift && state0.driving == carState.Driving.GoingHead && diff > errLDiS

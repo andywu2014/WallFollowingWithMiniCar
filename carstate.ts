@@ -35,6 +35,8 @@ namespace carState {
 		frontDistance: number
     angel: number
 		time: number
+		distance: number
+		speed: number
 
 		constructor(){
 			this.driving = Driving.Stop
@@ -42,6 +44,8 @@ namespace carState {
 			this.frontDistance = 0
 			this.angel = 0
 			this.time = 0
+			this.distance = 0
+			this.speed = 0
 		}
 
 		toLog(): string {
