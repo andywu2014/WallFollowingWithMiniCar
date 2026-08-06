@@ -10,8 +10,12 @@ namespace wallFollowing2 {
 		basic.showNumber(0)
 		ready()
 		basic.showNumber(1)
+		let numCycles = 1
 
 		while(true) {
+			bleLog.logValue("---numCycles---", numCycles)
+			numCycles = numCycles + 1
+
 			let nowState = new carState.State()
 			let drivingDurationMs = autoDrive(nowState)
 
@@ -42,10 +46,8 @@ namespace wallFollowing2 {
 		carState.history.setLatest(state)
 	}
 
-	let numCycles = 1
+
 	function autoDrive(nowState: carState.State): number {
-		bleLog.logValue("numCycles",numCycles)
-		numCycles = numCycles+1
 		const minFrontDis = 40
 		let state0 = carState.history.get(0)
 		if (state0.driving == carState.Driving.Stop) {
@@ -80,11 +82,13 @@ namespace wallFollowing2 {
 				return 0
 			}
 
+
 		}
 		const AllowedDrift = 5
 		if (state0.leftDistance < maze.LeftSensorExpectedDis - AllowedDrift && state0.driving == carState.Driving.GoingHead && diff > errLDiS
 				&& state0.frontDistance > minFrontDis) {
 			bleLog.logLine("TurnRight OK")
+
 			miniTank.TurnRight()
 			nowState.driving = carState.Driving.SlightRight
 			return 800

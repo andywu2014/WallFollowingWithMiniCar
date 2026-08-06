@@ -1,3 +1,5 @@
+import Driving = carState.Driving
+import State = carState.State
 
 input.onButtonPressed(Button.B, function () {
     control.raiseEvent(
@@ -78,6 +80,14 @@ const allCmds = [
 		VL6180.offsetCalibrationAt50mm(sensor.frontSensorAddr, 50)
 		bleLog.response("CalibrateFrontSensor OK")
 	}),
+	new cmd("left90", "carLeft90", ()=>{
+		miniTank.Left90()
+		bleLog.response("left90 OK")
+	}),
+	new cmd("right90", "carRight", ()=>{
+		miniTank.Right90()
+		bleLog.response("right90 OK")
+	})
 ]
 
 bluetooth.onUartDataReceived(serial.delimiters(Delimiters.Hash), function () {
