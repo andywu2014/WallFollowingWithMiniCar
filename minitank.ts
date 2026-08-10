@@ -1,6 +1,7 @@
 
 namespace miniTank {
 	export function Gohead() {
+		Settings()
 		pins.digitalWritePin(DigitalPin.P13, 0)
 		pins.analogSetPeriod(AnalogPin.P14, 20000)
 		pins.analogSetPeriod(AnalogPin.P15, 20000)
@@ -11,6 +12,7 @@ namespace miniTank {
 
 	export function TurnLeft() {
 		// Settings()
+		Settings()
 		pins.digitalWritePin(DigitalPin.P13, 0)
 		pins.analogSetPeriod(AnalogPin.P14, 20000)
 		pins.analogSetPeriod(AnalogPin.P15, 20000)
@@ -21,6 +23,7 @@ namespace miniTank {
 
 	export function TurnRight() {
 		// Settings()
+		Settings()
 		pins.digitalWritePin(DigitalPin.P13, 0)
 		pins.analogSetPeriod(AnalogPin.P14, 20000)
 		pins.analogSetPeriod(AnalogPin.P15, 20000)
@@ -99,13 +102,15 @@ namespace miniTank {
 	}
 
 	function Settings(){
-		let voltage = (pins.analogReadPin(AnalogPin.P1))
-		RPWM = standardVoltage * 150 / voltage
-		LPWM = standardVoltage * 140 / voltage
+		RV = standardVoltage * standardRPWM
+		LV = standardVoltage * standardLPWM
+		LPWM = LV / (pins.analogReadPin(AnalogPin.P1))
+		RPWM = RV / (pins.analogReadPin(AnalogPin.P1))
 	}
 
 	export function setLPWM(lpwm: number) {
-		LPWM = lpwm
+		standardLPWM = lpwm
+		Settings()
 	}
 
 	export function lPWM() {
@@ -113,17 +118,20 @@ namespace miniTank {
 	}
 
 	export function setRPWM(rpwm: number) {
-		RPWM = rpwm
+		standardRPWM = rpwm
+		Settings()
 	}
 
 	export function rPWM() {
-		return rPWM
+		return RPWM
 	}
 
 	const diff = 0.7
-	const standardVoltage = 2.6
-	const RV = standardVoltage * 150
-	const LV = standardVoltage * 140
+	const standardVoltage = Math.round(1023 * 2.9 / 3.31)
+	let standardRPWM = 120
+	let standardLPWM = 100
+	let RV = standardVoltage * standardRPWM
+	let LV = standardVoltage * standardLPWM
 	let LPWM = LV / (pins.analogReadPin(AnalogPin.P1))
 	let RPWM = RV / (pins.analogReadPin(AnalogPin.P1))
 

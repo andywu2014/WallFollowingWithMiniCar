@@ -22,8 +22,8 @@ namespace sensor {
 		return VL6180.readRange(leftSensorAddr)
 	}
 
-	const frontOffset = 20
+	const frontOffset = 16
 	export const frontSensorAddr = 0x2b
-	const leftOffset = 20
+	const leftOffset = 18
 	export const leftSensorAddr = 0x2a
 }

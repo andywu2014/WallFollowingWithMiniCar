@@ -48,6 +48,7 @@ namespace wallFollowing2 {
 
 
 	function autoDrive(nowState: carState.State): number {
+		bleLog.logValue("V:",(pins.analogReadPin(AnalogPin.P1)))
 		const minFrontDis = 40
 		let state0 = carState.history.get(0)
 		if (state0.driving == carState.Driving.Stop) {

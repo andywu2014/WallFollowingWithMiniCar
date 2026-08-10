@@ -50,7 +50,7 @@ const allCmds = [
 		bleLog.response("CalibrateLeftSensor OK")
 	}),
 	new cmd("leftoffset", "show left offset", ()=>{
-		bleLog.response(convertToText(VL6180.rangOffsetCalibration(wallFollowing.LeftSensorLocation)))
+		bleLog.response(convertToText(VL6180.rangOffsetCalibration(sensor.leftSensorAddr)))
 	}),
 	new cmd("gohead", "test gohead", ()=>{
 		bleLog.response("LPWM=" + convertToText(miniTank.lPWM())
@@ -59,6 +59,10 @@ const allCmds = [
 	}),
 	new cmd("setrpwm", "setrpwm xxx -- set rpwm = xxx(number)", (bleargs)=>{
 		miniTank.setRPWM(parseFloat(bleargs.shift()))
+		bleLog.response("LPWM=" + convertToText(miniTank.lPWM()) + "; RPWM=" + convertToText(miniTank.rPWM()))
+	}),
+	new cmd("setlpwm", "setlpwm xxx -- set lpwm = xxx(number)", (bleargs)=>{
+		miniTank.setLPWM(parseFloat(bleargs.shift()))
 		bleLog.response("LPWM=" + convertToText(miniTank.lPWM()) + "; RPWM=" + convertToText(miniTank.rPWM()))
 	}),
 	new cmd("start", "start wall following", ()=>{
