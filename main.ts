@@ -45,6 +45,10 @@ const allCmds = [
 		carState.ending()
 		miniTank.Stop()
 	}),
+	new cmd("gohead1000", "gohead1000", ()=>{
+		bleLog.response("gohead1000 OK")
+		TestGohead1000()
+	}),
 	new cmd("calleft", "CalibrateLeftSensor", ()=> {
 		VL6180.offsetCalibrationAt50mm(sensor.leftSensorAddr, 50)
 		bleLog.response("CalibrateLeftSensor OK")
@@ -193,6 +197,15 @@ function bleCalCmd (cmdstr: string, blearg: string, addr: number) {
 function TestGohead () {
 	miniTank.Gohead()
 	for (let index = 0; index < 50; index++) {
+		bluetooth.uartWriteValue("left", sensor.readLeftDis())
+		basic.pause(100)
+	}
+	miniTank.Stop()
+}
+
+function TestGohead1000 () {
+	miniTank.Gohead()
+	for (let index = 0; index < 10; index++) {
 		bluetooth.uartWriteValue("left", sensor.readLeftDis())
 		basic.pause(100)
 	}

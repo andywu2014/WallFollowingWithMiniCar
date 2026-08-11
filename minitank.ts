@@ -101,6 +101,7 @@ namespace miniTank {
 		basic.pause(100)
 	}
 
+
 	function Settings(){
 		RV = standardVoltage * standardRPWM
 		LV = standardVoltage * standardLPWM

@@ -89,13 +89,12 @@ namespace wallFollowing2 {
 		if (state0.leftDistance < maze.LeftSensorExpectedDis - AllowedDrift && state0.driving == carState.Driving.GoingHead && diff > errLDiS
 				&& state0.frontDistance > minFrontDis) {
 			bleLog.logLine("TurnRight OK")
-
 			miniTank.TurnRight()
 			nowState.driving = carState.Driving.SlightRight
 			return 800
 		}
 
-		if (state0.leftDistance > maze.LeftSensorExpectedDis + AllowedDrift && state0.driving == carState.Driving.GoingHead && diff < errLDiS * -1
+		if (state0.leftDistance > maze.LeftSensorExpectedDis + AllowedDrift && state0.leftDistance < maze.WallMazeWidth &&state0.driving == carState.Driving.GoingHead && diff < errLDiS * -1
 			&& state0.frontDistance > minFrontDis) {
 			bleLog.logLine("TurnLeft OK")
 			miniTank.TurnLeft()
@@ -111,6 +110,26 @@ namespace wallFollowing2 {
 			nowState.driving = carState.Driving.GoingHead
 			return 800
 		}
+
+		if ((state0.driving == carState.Driving.SlightLeft || state0.driving == carState.Driving.SlightRight
+			|| state0.driving == carState.Driving.GoingHead || state0.driving == carState.Driving.LeftBack
+			|| state0.driving == carState.Driving.RightBack) && state0.leftDistance > maze.WallMazeWidth ){
+			state0.driving = Driving.GoingTargetDist
+			return 0
+		}
+
+		if (state0.driving == Driving.GoingTargetDist && state0.leftDistance > maze.WallMazeWidth){
+			state0.driving = Driving.LeftBack
+			miniTank.Gohead()
+			return 900
+		}
+
+		if (state0.driving == Driving.GoingTargetDist && state0.frontDistance > minFrontDis){
+			state0.driving = Driving.RightBack
+			miniTank.Gohead()
+			return 900
+		}
+
 
 		miniTank.Stop()
 		nowState.driving = carState.Driving.Stop
