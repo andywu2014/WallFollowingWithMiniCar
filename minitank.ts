@@ -33,6 +33,7 @@ namespace miniTank {
 	}
 
 	export function Left90(){
+		Settings()
 		pins.analogSetPeriod(AnalogPin.P13, 20000)
 		pins.digitalWritePin(DigitalPin.P14, 0)
 		pins.analogSetPeriod(AnalogPin.P15, 20000)
@@ -41,7 +42,28 @@ namespace miniTank {
 		pins.analogWritePin(AnalogPin.P15, RPWM )
 	}
 
+	export function RightGo (){
+		Settings()
+		pins.analogSetPeriod(AnalogPin.P13, 0)
+		pins.digitalWritePin(DigitalPin.P14, 0)
+		pins.analogSetPeriod(AnalogPin.P15, 20000)
+		pins.digitalWritePin(DigitalPin.P16, 0)
+		pins.analogWritePin(AnalogPin.P13, 0)
+		pins.analogWritePin(AnalogPin.P15, RPWM )
+	}
+
+	export function LeftBack (){
+		Settings()
+		pins.analogSetPeriod(AnalogPin.P13, 20000)
+		pins.digitalWritePin(DigitalPin.P14, 0)
+		pins.analogSetPeriod(AnalogPin.P15, 0)
+		pins.digitalWritePin(DigitalPin.P16, 0)
+		pins.analogWritePin(AnalogPin.P13, LPWM)
+		pins.analogWritePin(AnalogPin.P15, 0 )
+	}
+
 	export function Right90(){
+		Settings()
 		pins.digitalWritePin(DigitalPin.P13, 0)
 		pins.analogSetPeriod(AnalogPin.P14, 20000)
 		pins.digitalWritePin(DigitalPin.P15, 0)
@@ -101,6 +123,9 @@ namespace miniTank {
 		basic.pause(100)
 	}
 
+	input.onButtonPressed(Button.A, function () {
+		input.calibrateCompass()
+	})
 
 	function Settings(){
 		RV = standardVoltage * standardRPWM

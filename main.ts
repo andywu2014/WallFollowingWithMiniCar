@@ -89,8 +89,9 @@ const allCmds = [
 		bleLog.response("CalibrateFrontSensor OK")
 	}),
 	new cmd("left90", "carLeft90", ()=>{
-		miniTank.Left90()
 		bleLog.response("left90 OK")
+		miniTank.Left90()
+		return 5000
 	}),
 	new cmd("right90", "carRight", ()=>{
 		miniTank.Right90()

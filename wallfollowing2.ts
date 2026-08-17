@@ -4,6 +4,7 @@ namespace wallFollowing2 {
 	import logLine = bleLog.logLine
 	import WallMazeWidth = maze.WallMazeWidth
 	import Left90Turning = wallFollowing.Left90Turning
+	import State = carState.State
 	const errLDiS = 4
 
 	export function start() {
@@ -43,6 +44,7 @@ namespace wallFollowing2 {
 		state.time = control.millis()
 		state.speed = 0
 		state.distance = 0
+		state.angel = 0
 		carState.history.setLatest(state)
 	}
 
@@ -87,55 +89,79 @@ namespace wallFollowing2 {
 		}
 		const AllowedDrift = 5
 		if (state0.leftDistance < maze.LeftSensorExpectedDis - AllowedDrift && state0.driving == carState.Driving.GoingHead && diff > errLDiS
-				&& state0.frontDistance > minFrontDis) {
+				&& state0.frontDistance > minFrontDis && state0.leftDistance < maze.WallMazeWidth) {
 			bleLog.logLine("TurnRight OK")
 			miniTank.TurnRight()
 			nowState.driving = carState.Driving.SlightRight
-			return 800
+			return 500
 		}
 
-		if (state0.leftDistance > maze.LeftSensorExpectedDis + AllowedDrift && state0.leftDistance < maze.WallMazeWidth &&state0.driving == carState.Driving.GoingHead && diff < errLDiS * -1
-			&& state0.frontDistance > minFrontDis) {
+		if (state0.leftDistance > maze.LeftSensorExpectedDis + AllowedDrift && state0.leftDistance < maze.WallMazeWidth
+			&&state0.driving == carState.Driving.GoingHead && diff < errLDiS * -1 && state0.frontDistance > minFrontDis) {
 			bleLog.logLine("TurnLeft OK")
 			miniTank.TurnLeft()
 			nowState.driving = carState.Driving.SlightLeft
-			return 800
+			return 500
 		}
 
-		if ((state0.driving == carState.Driving.Ready || state0.driving == carState.Driving.SlightLeft
+		if (state0.leftDistance < maze.WallMazeWidth && (state0.driving == carState.Driving.Ready || state0.driving == carState.Driving.SlightLeft
 			|| state0.driving == carState.Driving.SlightRight || state0.driving == carState.Driving.GoingHead)
 			&& state0.frontDistance > minFrontDis) {
 			bleLog.logLine("GoHead OK")
 			miniTank.Gohead()
 			nowState.driving = carState.Driving.GoingHead
-			return 800
+			return 500
 		}
 
 		if ((state0.driving == carState.Driving.SlightLeft || state0.driving == carState.Driving.SlightRight
-			|| state0.driving == carState.Driving.GoingHead || state0.driving == carState.Driving.LeftBack
-			|| state0.driving == carState.Driving.RightBack) && state0.leftDistance > maze.WallMazeWidth ){
-			state0.driving = Driving.GoingTargetDist
-			return 0
-		}
-
-		if (state0.driving == Driving.GoingTargetDist && state0.leftDistance > maze.WallMazeWidth){
-			state0.driving = Driving.LeftBack
+			|| state0.driving == carState.Driving.GoingHead) && state0.leftDistance > maze.WallMazeWidth ){
+			nowState.driving = Driving.GoingTargetDist
+			nowState.angel = input.compassHeading() - 90
+			if (nowState.angel < 0){
+				nowState.angel = 360 + nowState.angel
+			}
 			miniTank.Gohead()
-			return 900
+			return 500
 		}
 
-		if (state0.driving == Driving.GoingTargetDist && state0.frontDistance > minFrontDis){
-			state0.driving = Driving.RightBack
-			miniTank.Gohead()
-			return 900
+		if (state0.driving == Driving.GoingTargetDist) {
+			nowState.angel = state0.angel
+			if (input.compassHeading() - state0.angel > 300){
+				nowState.driving = Driving.LeftBack
+				return 0
+			}
+			if (state0.angel - input.compassHeading() >= 0){
+				nowState.driving = Driving.LeftBack
+				return 0
+			}
+			miniTank.Left90()
+			return 500
 		}
+		// if (state0.driving == Driving.GoingTargetDist && state0.leftDistance > maze.WallMazeWidth){
+		// 	nowState.driving = Driving.LeftBack
+		// 	miniTank.Gohead()
+		// 	return 500
+		// }
+		//
+		//
+		// if (state0.driving == Driving.GoingTargetDist && state0.frontDistance > minFrontDis){
+		// 	nowState.driving = Driving.RightBack
+		// 	miniTank.Gohead()
+		// 	return 500
+		// }
 
+		// if (state0.driving == Driving.LeftBack){
+		// }
+		//
+		// if (state0.driving == Driving.LeftBack){
+		//
+		// }
 
 		miniTank.Stop()
 		nowState.driving = carState.Driving.Stop
 		return 0
+		}
 	}
 
 
 
-}
