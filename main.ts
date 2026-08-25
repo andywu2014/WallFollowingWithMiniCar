@@ -61,11 +61,11 @@ const allCmds = [
 			+ "; RPWM=" + convertToText(miniTank.rPWM()))
 		TestGohead()
 	}),
-	new cmd("setrpwm", "setrpwm xxx -- set rpwm = xxx(number)", (bleargs)=>{
+	new cmd("setRpwm", "setrpwm xxx -- set rpwm = xxx(number)", (bleargs)=>{
 		miniTank.setRPWM(parseFloat(bleargs.shift()))
 		bleLog.response("LPWM=" + convertToText(miniTank.lPWM()) + "; RPWM=" + convertToText(miniTank.rPWM()))
 	}),
-	new cmd("setlpwm", "setlpwm xxx -- set lpwm = xxx(number)", (bleargs)=>{
+	new cmd("setLpwm", "setlpwm xxx -- set lpwm = xxx(number)", (bleargs)=>{
 		miniTank.setLPWM(parseFloat(bleargs.shift()))
 		bleLog.response("LPWM=" + convertToText(miniTank.lPWM()) + "; RPWM=" + convertToText(miniTank.rPWM()))
 	}),
@@ -88,14 +88,19 @@ const allCmds = [
 		VL6180.offsetCalibrationAt50mm(sensor.frontSensorAddr, 50)
 		bleLog.response("CalibrateFrontSensor OK")
 	}),
-	new cmd("left90", "carLeft90", ()=>{
+	new cmd("left90", "carLeft90 xxx -- time = xxx(ms)", (bleargs)=>{
+		let time = parseInt(bleargs.shift())
 		bleLog.response("left90 OK")
 		miniTank.Left90()
-		return 5000
+		basic.pause(time)
+		miniTank.Stop()
 	}),
-	new cmd("right90", "carRight", ()=>{
-		miniTank.Right90()
+	new cmd("right90", "carRight xxx -- time = xxx(ms)", (bleargs)=>{
+		let time = parseInt(bleargs.shift())
 		bleLog.response("right90 OK")
+		miniTank.Right90()
+		basic.pause(time)
+		miniTank.Stop()
 	})
 ]
 

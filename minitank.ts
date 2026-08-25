@@ -1,6 +1,8 @@
 
 namespace miniTank {
 	export function Gohead() {
+		standardRPWM = 120
+		standardLPWM = 100
 		Settings()
 		pins.digitalWritePin(DigitalPin.P13, 0)
 		pins.analogSetPeriod(AnalogPin.P14, 20000)
@@ -11,7 +13,8 @@ namespace miniTank {
 	}
 
 	export function TurnLeft() {
-		// Settings()
+		standardRPWM = 120
+		standardLPWM = 100
 		Settings()
 		pins.digitalWritePin(DigitalPin.P13, 0)
 		pins.analogSetPeriod(AnalogPin.P14, 20000)
@@ -22,6 +25,8 @@ namespace miniTank {
 	}
 
 	export function TurnRight() {
+		standardRPWM = 120
+		standardLPWM = 100
 		// Settings()
 		Settings()
 		pins.digitalWritePin(DigitalPin.P13, 0)
@@ -33,13 +38,35 @@ namespace miniTank {
 	}
 
 	export function Left90(){
+		standardRPWM = 150
 		Settings()
-		pins.analogSetPeriod(AnalogPin.P13, 20000)
+		pins.analogSetPeriod(AnalogPin.P13, 0)
 		pins.digitalWritePin(DigitalPin.P14, 0)
 		pins.analogSetPeriod(AnalogPin.P15, 20000)
 		pins.digitalWritePin(DigitalPin.P16, 0)
+		pins.analogWritePin(AnalogPin.P15, RPWM)
+	}
+
+	export function GoBack(){
+		standardRPWM = 120
+		standardLPWM = 100
+		Settings()
+		pins.analogSetPeriod(AnalogPin.P13, 20000)
+		pins.digitalWritePin(DigitalPin.P14, 0)
+		pins.digitalWritePin(DigitalPin.P15, 0)
+		pins.analogSetPeriod(AnalogPin.P16, 20000)
 		pins.analogWritePin(AnalogPin.P13, LPWM)
-		pins.analogWritePin(AnalogPin.P15, RPWM )
+		pins.analogWritePin(AnalogPin.P16, RPWM)
+	}
+
+	export function Right90(){
+		standardLPWM = 160
+		Settings()
+		pins.digitalWritePin(DigitalPin.P13, 0)
+		pins.analogSetPeriod(AnalogPin.P14, 20000)
+		pins.digitalWritePin(DigitalPin.P15, 0)
+		pins.analogSetPeriod(AnalogPin.P16, 0)
+		pins.analogWritePin(AnalogPin.P14, LPWM)
 	}
 
 	export function RightGo (){
@@ -58,19 +85,11 @@ namespace miniTank {
 		pins.digitalWritePin(DigitalPin.P14, 0)
 		pins.analogSetPeriod(AnalogPin.P15, 0)
 		pins.digitalWritePin(DigitalPin.P16, 0)
-		pins.analogWritePin(AnalogPin.P13, LPWM)
+		pins.analogWritePin(AnalogPin.P13, LPWM )
 		pins.analogWritePin(AnalogPin.P15, 0 )
 	}
 
-	export function Right90(){
-		Settings()
-		pins.digitalWritePin(DigitalPin.P13, 0)
-		pins.analogSetPeriod(AnalogPin.P14, 20000)
-		pins.digitalWritePin(DigitalPin.P15, 0)
-		pins.analogSetPeriod(AnalogPin.P16, 20000)
-		pins.analogWritePin(AnalogPin.P14, LPWM)
-		pins.analogWritePin(AnalogPin.P16, RPWM )
-	}
+
 
 	export function Stop() {
 		pins.digitalWritePin(DigitalPin.P13, 0)
