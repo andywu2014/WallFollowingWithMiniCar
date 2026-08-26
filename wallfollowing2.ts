@@ -3,9 +3,7 @@ namespace wallFollowing2 {
 	import Driving = carState.Driving
 	import logLine = bleLog.logLine
 	import WallMazeWidth = maze.WallMazeWidth
-	import Left90Turning = wallFollowing.Left90Turning
 	import State = carState.State
-	// const errLDiS = 4
 
 	export function start() {
 		basic.showNumber(0)

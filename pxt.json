@@ -15,7 +15,6 @@
         "carstate.ts",
         "minitank.ts",
         "sensor.ts",
-        "wallfollowing.ts",
 				"wallfollowing2.ts"
     ],
     "testFiles": [

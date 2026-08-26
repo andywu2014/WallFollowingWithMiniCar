@@ -1,6 +1,6 @@
 
 namespace miniTank {
-	export class PWM {constructor(readonly RPWM: number, readonly LPWM: number) {
+	export class PWM {constructor(public readonly RPWM: number, public readonly LPWM: number) {
 	}}
 
 	type RealPWM = PWM
