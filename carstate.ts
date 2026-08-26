@@ -24,7 +24,7 @@ namespace carState {
 	export enum Driving {
 		Stop, Ready, GoingHead, SlightRight, SlightLeft, Right90, PreLeft90, Left90, GoingBack, ALL
 	}
-	const drivingStrs: string[] = ["Stop", "GoingHead", "SlightRight", "SlightLeft", "Ready"]
+	const drivingStrs: string[] = ["Stop","Ready", "GoingHead", "SlightRight", "SlightLeft", "Right90", "PreLeft90", "Left90", "GoingBack"]
 	export function DrivingToStr(d: Driving): string {
 		return drivingStrs[d]
 	}

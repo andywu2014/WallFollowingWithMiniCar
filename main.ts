@@ -27,11 +27,19 @@ class cmd {
 }
 
 const allCmds = [
-	new cmd("GoStraight", "GoStraight", function (){
-		bleLog.response("GoStraight OK")
-		wallFollowing.GoStraight()
+	new cmd("start", "start wall following", ()=>{
+		bleLog.response("start OK")
+		control.raiseEvent(
+			EventBusSource.MES_BROADCAST_GENERAL_ID,
+			EventBusValue.MES_ALERT_EVT_ALARM1
+		)
+	}),
+	new cmd("stop", "stop car", ()=>{
+		bleLog.response("stop OK")
+		carState.ending()
 		miniTank.Stop()
 	}),
+
 	new cmd("leftSensor", "leftSensor", ()=>{
 		bleLog.response("leftSensor OK")
 		bluetooth.uartWriteLine(convertToText(VL6180.averageLastest(sensor.leftSensorAddr, 1)))
@@ -40,14 +48,12 @@ const allCmds = [
 		bleLog.response("frontSensor OK")
 		bluetooth.uartWriteLine(convertToText(VL6180.averageLastest(sensor.frontSensorAddr, 1)))
 	}),
-	new cmd("stop", "stop car", ()=>{
-		bleLog.response("stop OK")
-		carState.ending()
-		miniTank.Stop()
+	new cmd("frontoffset", "show front offset", ()=>{
+		bleLog.response(convertToText(VL6180.rangOffsetCalibration(sensor.frontSensorAddr)))
 	}),
-	new cmd("gohead1000", "gohead1000", ()=>{
-		bleLog.response("gohead1000 OK")
-		TestGohead1000()
+	new cmd("calfront", "CalibrateFrontSensor", ()=>{
+		VL6180.offsetCalibrationAt50mm(sensor.frontSensorAddr, 50)
+		bleLog.response("CalibrateFrontSensor OK")
 	}),
 	new cmd("calleft", "CalibrateLeftSensor", ()=> {
 		VL6180.offsetCalibrationAt50mm(sensor.leftSensorAddr, 50)
@@ -56,49 +62,27 @@ const allCmds = [
 	new cmd("leftoffset", "show left offset", ()=>{
 		bleLog.response(convertToText(VL6180.rangOffsetCalibration(sensor.leftSensorAddr)))
 	}),
-	new cmd("gohead", "test gohead", ()=>{
-		bleLog.response("LPWM=" + convertToText(miniTank.lPWM())
-			+ "; RPWM=" + convertToText(miniTank.rPWM()))
-		TestGohead()
-	}),
+
 	new cmd("setRpwm", "setrpwm xxx -- set rpwm = xxx(number)", (bleargs)=>{
-		miniTank.setRPWM(parseFloat(bleargs.shift()))
-		bleLog.response("LPWM=" + convertToText(miniTank.lPWM()) + "; RPWM=" + convertToText(miniTank.rPWM()))
+		let real = miniTank.Settings(miniTank.setRPWM(parseInt(bleargs.shift())))
+		bleLog.response("LPWM=" + convertToText(real.LPWM) + "; RPWM=" + convertToText(real.RPWM))
 	}),
 	new cmd("setLpwm", "setlpwm xxx -- set lpwm = xxx(number)", (bleargs)=>{
-		miniTank.setLPWM(parseFloat(bleargs.shift()))
-		bleLog.response("LPWM=" + convertToText(miniTank.lPWM()) + "; RPWM=" + convertToText(miniTank.rPWM()))
+		let real = miniTank.Settings(miniTank.setLPWM(parseInt(bleargs.shift())))
+		bleLog.response("LPWM=" + convertToText(real.LPWM) + "; RPWM=" + convertToText(real.RPWM))
 	}),
-	new cmd("start", "start wall following", ()=>{
-		bleLog.response("start OK")
-		control.raiseEvent(
-			EventBusSource.MES_BROADCAST_GENERAL_ID,
-			EventBusValue.MES_ALERT_EVT_ALARM1
-		)
-	}),
-	new cmd("turnleft90", "turnleft90", ()=>{
-		bleLog.response("Turnleft90 OK")
-		wallFollowing.Left90Turning()
-		miniTank.Stop()
-	}),
-	new cmd("frontoffset", "show front offset", ()=>{
-		bleLog.response(convertToText(VL6180.rangOffsetCalibration(sensor.frontSensorAddr)))
-	}),
-	new cmd("calfront", "CalibrateFrontSensor", ()=>{
-		VL6180.offsetCalibrationAt50mm(sensor.frontSensorAddr, 50)
-		bleLog.response("CalibrateFrontSensor OK")
-	}),
-	new cmd("left90", "carLeft90 xxx -- time = xxx(ms)", (bleargs)=>{
+
+	new cmd("goforward", "goforward xxx -- time = xxx(ms)", (bleargs)=>{
 		let time = parseInt(bleargs.shift())
-		bleLog.response("left90 OK")
-		miniTank.Left90()
+		bleLog.response("goforward OK")
+		miniTank.GoForward(miniTank.LastExpected())
 		basic.pause(time)
 		miniTank.Stop()
 	}),
-	new cmd("right90", "carRight xxx -- time = xxx(ms)", (bleargs)=>{
+	new cmd("goback", "goback xxx -- time = xxx(ms)", (bleargs)=>{
 		let time = parseInt(bleargs.shift())
-		bleLog.response("right90 OK")
-		miniTank.Right90()
+		bleLog.response("goback OK")
+		miniTank.GoBack(miniTank.LastExpected())
 		basic.pause(time)
 		miniTank.Stop()
 	})
@@ -125,63 +109,6 @@ bluetooth.onUartDataReceived(serial.delimiters(Delimiters.Hash), function () {
 		}
 	}
 
-	// todo: delete
-	// if (blecmd.compare("GoStraight") == 0) {
-	// 	bleLog.response("GoStraight OK")
-	// 	wallFollowing.GoStraight()
-	// 	miniTank.Stop()
-	// } else if (blecmd.compare("leftSensor") == 0) {
-	// 	bleLog.response("leftSensor OK")
-	// 	bluetooth.uartWriteLine(convertToText(VL6180.averageLastest(sensor.leftSensorAddr, 1)))
-	// } else if (blecmd.compare("frontSensor") == 0) {
-	// 	bluetooth.uartWriteLine(">>frontSensor OK")
-	// 	bluetooth.uartWriteLine(convertToText(VL6180.averageLastest(sensor.frontSensorAddr, 1)))
-	// } else if (blecmd.compare("stop") == 0) {
-	// 	bluetooth.uartWriteLine(">>Stop OK")
-	// 	carState.ending()
-	// 	miniTank.Stop()
-	// } else if (blecmd.compare("calleft") == 0) {
-	// 	VL6180.offsetCalibrationAt50mm(sensor.leftSensorAddr, 50)
-	// 	bluetooth.uartWriteLine(">>CalibrateLeftSensor OK")
-	// } else if (blecmd.compare("leftoffset") == 0) {
-	// 	bluetooth.uartWriteLine(">>"
-	// 		+ convertToText(VL6180.rangOffsetCalibration(wallFollowing.LeftSensorLocation)))
-	// } else if (blecmd.compare("gohead") == 0) {
-	// 	bluetooth.uartWriteLine(">>" + "LPWM=" + convertToText(miniTank.lPWM())
-	// 		+ "; RPWM=" + convertToText(miniTank.rPWM()))
-	// 	TestGohead()
-	// } else if (blecmd.compare("setrpwm") == 0 && bleargs.length == 1) {
-	// 	miniTank.setRPWM(parseFloat(bleargs.shift()))
-	// 	bluetooth.uartWriteLine(">>" + "LPWM=" + convertToText(miniTank.lPWM()) + "; RPWM=" + convertToText(miniTank.rPWM()))
-	// } else if (blecmd.compare("start") == 0) {
-	// 	bluetooth.uartWriteLine(">>Start OK")
-	// 	control.raiseEvent(
-	// 		EventBusSource.MES_BROADCAST_GENERAL_ID,
-	// 		EventBusValue.MES_ALERT_EVT_ALARM1
-	// 	)
-	// } else if (blecmd.compare("turnleft90") == 0) {
-	// 	bluetooth.uartWriteLine(">>Turnleft90 OK")
-	// 	wallFollowing.Left90Turning()
-	// 	miniTank.Stop()
-	// } else if (blecmd.compare("frontoffset") == 0) {
-	// 	bluetooth.uartWriteLine(">>" + convertToText(VL6180.rangOffsetCalibration(sensor.frontSensorAddr)))
-	// } else if (blecmd.compare("calfront") == 0) {
-	// 	VL6180.offsetCalibrationAt50mm(sensor.frontSensorAddr, 50)
-	// 	bluetooth.uartWriteLine(">>CalibrateFrontSensor OK")
-	// } else {
-	// 	bluetooth.uartWriteLine(">>leftSensor: leftSensor")
-	// 	bluetooth.uartWriteLine(">>frontSensor: frontSensor")
-	// 	bluetooth.uartWriteLine(">>GoStraight: GoStraight")
-	// 	bluetooth.uartWriteLine(">>stop: stop car")
-	// 	bluetooth.uartWriteLine(">>calleft: CalibrateLeftSensor")
-	// 	bluetooth.uartWriteLine(">>calfront: CalibrateFrontSensor")
-	// 	bluetooth.uartWriteLine(">>leftoffset: show left offset")
-	// 	bluetooth.uartWriteLine(">>frontoffset: show front offset")
-	// 	bluetooth.uartWriteLine(">>gohead: test gohead")
-	// 	bluetooth.uartWriteLine(">>setrpwm xxx: set rpwm = xxx(number)")
-	// 	bluetooth.uartWriteLine(">>start: start wall following")
-	// 	bluetooth.uartWriteLine(">>turnleft90: turnleft90")
-	// }
 })
 
 function bleCalCmd (cmdstr: string, blearg: string, addr: number) {
@@ -198,33 +125,6 @@ function bleCalCmd (cmdstr: string, blearg: string, addr: number) {
 		bluetooth.uartWriteLine("" + cmdstr + ":write --- cal offset")
 		bluetooth.uartWriteLine("" + cmdstr + ":10times --- the average of latest 10 value")
 	}
-}
-
-function TestGohead () {
-	miniTank.Gohead()
-	for (let index = 0; index < 50; index++) {
-		bluetooth.uartWriteValue("left", sensor.readLeftDis())
-		basic.pause(100)
-	}
-	miniTank.Stop()
-}
-
-function TestGohead1000 () {
-	miniTank.Gohead()
-	for (let index = 0; index < 10; index++) {
-		bluetooth.uartWriteValue("left", sensor.readLeftDis())
-		basic.pause(100)
-	}
-	miniTank.Stop()
-}
-
-function testFunction (arg: string) {
-    if (arg.compare("right") == 0) {
-        bluetooth.uartWriteLine(">>ok")
-        miniTank.TurnRight()
-    } else {
-        bluetooth.uartWriteLine(">> only support--- test right: call TurnRight")
-    }
 }
 
 control.onEvent(EventBusSource.MES_BROADCAST_GENERAL_ID, EventBusValue.MES_ALERT_EVT_ALARM1, function () {

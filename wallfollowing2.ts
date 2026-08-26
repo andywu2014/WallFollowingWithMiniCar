@@ -190,7 +190,8 @@ namespace wallFollowing2 {
 
 	allModelDrivers[Driving.Ready] = function (nextState: carState.State): number {
 		bleLog.logLine("GoHead OK")
-		miniTank.Gohead()
+
+		miniTank.GoForward(miniTank.Straight)
 		nextState.driving = carState.Driving.GoingHead
 		return 500
 	}
@@ -207,32 +208,32 @@ namespace wallFollowing2 {
 
 		if (nowState.leftDistance >= maze.WallMazeWidth ){
 			nextState.driving = Driving.PreLeft90
-			miniTank.Gohead()
+			miniTank.GoForward(miniTank.Straight)
 			return 500
 		}
 
 		if (nowState.frontDistance <= minFrontDis) {
 			nextState.driving = Driving.Right90
-			miniTank.Right90()
+			miniTank.GoForward(miniTank.Right90)
 			return 1500
 		}
 
 		if (nowState.leftDistance < maze.LeftSensorExpectedDis - allowedDrift && diff > errLDiS) {
 			bleLog.logLine("TurnRight OK")
-			miniTank.TurnRight()
+			miniTank.GoForward(miniTank.RightSlight)
 			nextState.driving = carState.Driving.SlightRight
 			return 500
 		}
 
 		if (nowState.leftDistance > maze.LeftSensorExpectedDis + allowedDrift && diff < errLDiS * -1 ) {
 			bleLog.logLine("TurnLeft OK")
-			miniTank.TurnLeft()
+			miniTank.GoForward(miniTank.LeftSlight)
 			nextState.driving = carState.Driving.SlightLeft
 			return 500
 		}
 
 		bleLog.logLine("GoHead OK")
-		miniTank.Gohead()
+		miniTank.GoForward(miniTank.Straight)
 		nextState.driving = carState.Driving.GoingHead
 		return 500
 	}
@@ -240,25 +241,21 @@ namespace wallFollowing2 {
 	allModelDrivers[Driving.SlightLeft] = function (nextState: carState.State): number {
 		const minFrontDis = 40
 		let nowState = carState.history.get(0)
-		let history_id = -1
-		while (history_id > -carState.HistoryLen + 1 && carState.history.get(history_id).driving == Driving.GoingHead) {
-			history_id = history_id - 1
-		}
 
 		if (nowState.leftDistance >= maze.WallMazeWidth ){
 			nextState.driving = Driving.PreLeft90
-			miniTank.Gohead()
+			miniTank.GoForward(miniTank.Straight)
 			return 500
 		}
 
 		if (nowState.frontDistance <= minFrontDis) {
 			nextState.driving = Driving.Right90
-			miniTank.Right90()
+			miniTank.GoForward(miniTank.Right90)
 			return 1500
 		}
 
 		bleLog.logLine("GoHead OK")
-		miniTank.Gohead()
+		miniTank.GoForward(miniTank.Straight)
 		nextState.driving = carState.Driving.GoingHead
 		return 500
 	}
@@ -266,87 +263,54 @@ namespace wallFollowing2 {
 	allModelDrivers[Driving.SlightRight] = function (nextState: carState.State): number {
 		const minFrontDis = 40
 		let nowState = carState.history.get(0)
-		let history_id = -1
-		while (history_id > -carState.HistoryLen + 1 && carState.history.get(history_id).driving == Driving.GoingHead) {
-			history_id = history_id - 1
-		}
 
 		if (nowState.leftDistance >= maze.WallMazeWidth ){
 			nextState.driving = Driving.PreLeft90
-			miniTank.Gohead()
+			miniTank.GoForward(miniTank.Straight)
 			return 500
 		}
 
 		if (nowState.frontDistance <= minFrontDis) {
 			nextState.driving = Driving.Right90
-			miniTank.Right90()
+			miniTank.GoForward(miniTank.Right90)
 			return 1500
 		}
 		bleLog.logLine("GoHead OK")
-		miniTank.Gohead()
+		miniTank.GoForward(miniTank.Straight)
 		nextState.driving = carState.Driving.GoingHead
 		return 500
 	}
 
 	allModelDrivers[Driving.PreLeft90] = function (nextState: carState.State): number {
-		let nowState = carState.history.get(0)
-		let history_id = -1
-		while (history_id > -carState.HistoryLen + 1 && carState.history.get(history_id).driving == Driving.GoingHead) {
-			history_id = history_id - 1
-		}
-
 		nextState.driving = Driving.Left90
-		miniTank.Left90()
+		miniTank.GoForward(miniTank.Left90)
 		return 1100
 	}
 
 	allModelDrivers[Driving.Left90] = function (nextState: carState.State): number {
-		let nowState = carState.history.get(0)
-		let history_id = -1
-		while (history_id > -carState.HistoryLen + 1 && carState.history.get(history_id).driving == Driving.GoingHead) {
-			history_id = history_id - 1
-		}
-
-		miniTank.Gohead()
+		miniTank.GoForward(miniTank.Straight)
 		nextState.driving = Driving.GoingHead
 		return 500
 	}
 
 	allModelDrivers[Driving.Right90] = function (nextState: carState.State): number {
 		let nowState = carState.history.get(0)
-		let history_id = -1
-		while(history_id > -carState.HistoryLen + 1 && carState.history.get(history_id).driving == Driving.GoingHead){
-			history_id = history_id - 1
-		}
-		let goHeadMax = carState.history.get(history_id).leftDistance
-		let diff = goHeadMax - nowState.leftDistance
-		bleLog.logValue("diff", diff)
-
 
 		if (nowState.frontDistance <= minFrontDis) {
 			nextState.driving = Driving.GoingBack
-			miniTank.GoBack()
+			miniTank.GoBack(miniTank.Straight)
 			return 300
 		}
 
 		bleLog.logLine("GoHead OK")
-		miniTank.Gohead()
+		miniTank.GoForward(miniTank.Straight)
 		nextState.driving = carState.Driving.GoingHead
 		return 500
 	}
 
 	allModelDrivers[Driving.GoingBack] = function (nextState: carState.State): number {
-		let nowState = carState.history.get(0)
-		let history_id = -1
-		while (history_id > -carState.HistoryLen + 1 && carState.history.get(history_id).driving == Driving.GoingHead) {
-			history_id = history_id - 1
-		}
-		let goHeadMax = carState.history.get(history_id).leftDistance
-		let diff = goHeadMax - nowState.leftDistance
-		bleLog.logValue("diff", diff)
-
 		nextState.driving = Driving.Right90
-		miniTank.Right90()
+		miniTank.GoForward(miniTank.Right90)
 		return 1500
 	}
 

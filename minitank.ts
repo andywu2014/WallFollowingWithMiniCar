@@ -1,95 +1,38 @@
 
 namespace miniTank {
-	export function Gohead() {
-		standardRPWM = 120
-		standardLPWM = 100
-		Settings()
+	export class PWM {constructor(readonly RPWM: number, readonly LPWM: number) {
+	}}
+
+	type RealPWM = PWM
+	type ExpectedPWM = PWM
+
+	const diff = 0.7
+
+	export const Straight = new PWM(120, 100)
+	export const Left90 = new PWM(150, 0)
+	export const Right90 = new PWM(0, 160)
+	export const LeftSlight = new PWM(120, 100 * diff)
+	export const RightSlight = new PWM(120 * diff, 100)
+
+	export function GoForward(expectedPWM: ExpectedPWM) {
+		let real = Settings(expectedPWM)
 		pins.digitalWritePin(DigitalPin.P13, 0)
 		pins.analogSetPeriod(AnalogPin.P14, 20000)
 		pins.analogSetPeriod(AnalogPin.P15, 20000)
 		pins.digitalWritePin(DigitalPin.P16, 0)
-		pins.analogWritePin(AnalogPin.P14, LPWM)
-		pins.analogWritePin(AnalogPin.P15, RPWM)
+		pins.analogWritePin(AnalogPin.P14, real.LPWM)
+		pins.analogWritePin(AnalogPin.P15, real.RPWM)
 	}
 
-	export function TurnLeft() {
-		standardRPWM = 120
-		standardLPWM = 100
-		Settings()
-		pins.digitalWritePin(DigitalPin.P13, 0)
-		pins.analogSetPeriod(AnalogPin.P14, 20000)
-		pins.analogSetPeriod(AnalogPin.P15, 20000)
-		pins.digitalWritePin(DigitalPin.P16, 0)
-		pins.analogWritePin(AnalogPin.P14, LPWM * diff)
-		pins.analogWritePin(AnalogPin.P15, RPWM)
-	}
-
-	export function TurnRight() {
-		standardRPWM = 120
-		standardLPWM = 100
-		// Settings()
-		Settings()
-		pins.digitalWritePin(DigitalPin.P13, 0)
-		pins.analogSetPeriod(AnalogPin.P14, 20000)
-		pins.analogSetPeriod(AnalogPin.P15, 20000)
-		pins.digitalWritePin(DigitalPin.P16, 0)
-		pins.analogWritePin(AnalogPin.P14, LPWM)
-		pins.analogWritePin(AnalogPin.P15, RPWM * diff)
-	}
-
-	export function Left90(){
-		standardRPWM = 150
-		Settings()
-		pins.analogSetPeriod(AnalogPin.P13, 0)
-		pins.digitalWritePin(DigitalPin.P14, 0)
-		pins.analogSetPeriod(AnalogPin.P15, 20000)
-		pins.digitalWritePin(DigitalPin.P16, 0)
-		pins.analogWritePin(AnalogPin.P15, RPWM)
-	}
-
-	export function GoBack(){
-		standardRPWM = 120
-		standardLPWM = 100
-		Settings()
+	export function GoBack(expectedPWM: ExpectedPWM){
+		let real = Settings(expectedPWM)
 		pins.analogSetPeriod(AnalogPin.P13, 20000)
 		pins.digitalWritePin(DigitalPin.P14, 0)
 		pins.digitalWritePin(DigitalPin.P15, 0)
 		pins.analogSetPeriod(AnalogPin.P16, 20000)
-		pins.analogWritePin(AnalogPin.P13, LPWM)
-		pins.analogWritePin(AnalogPin.P16, RPWM)
+		pins.analogWritePin(AnalogPin.P13, real.LPWM)
+		pins.analogWritePin(AnalogPin.P16, real.RPWM)
 	}
-
-	export function Right90(){
-		standardLPWM = 160
-		Settings()
-		pins.digitalWritePin(DigitalPin.P13, 0)
-		pins.analogSetPeriod(AnalogPin.P14, 20000)
-		pins.digitalWritePin(DigitalPin.P15, 0)
-		pins.analogSetPeriod(AnalogPin.P16, 0)
-		pins.analogWritePin(AnalogPin.P14, LPWM)
-	}
-
-	export function RightGo (){
-		Settings()
-		pins.analogSetPeriod(AnalogPin.P13, 0)
-		pins.digitalWritePin(DigitalPin.P14, 0)
-		pins.analogSetPeriod(AnalogPin.P15, 20000)
-		pins.digitalWritePin(DigitalPin.P16, 0)
-		pins.analogWritePin(AnalogPin.P13, 0)
-		pins.analogWritePin(AnalogPin.P15, RPWM )
-	}
-
-	export function LeftBack (){
-		Settings()
-		pins.analogSetPeriod(AnalogPin.P13, 20000)
-		pins.digitalWritePin(DigitalPin.P14, 0)
-		pins.analogSetPeriod(AnalogPin.P15, 0)
-		pins.digitalWritePin(DigitalPin.P16, 0)
-		pins.analogWritePin(AnalogPin.P13, LPWM )
-		pins.analogWritePin(AnalogPin.P15, 0 )
-	}
-
-
 
 	export function Stop() {
 		pins.digitalWritePin(DigitalPin.P13, 0)
@@ -98,89 +41,32 @@ namespace miniTank {
 		pins.digitalWritePin(DigitalPin.P16, 0)
 	}
 
-	export function ZeroRadiusRight() {
-		pins.digitalWritePin(DigitalPin.P13, 0)
-		pins.analogSetPeriod(AnalogPin.P14, 20000)
-		pins.analogWritePin(AnalogPin.P14, 200)
-		pins.analogSetPeriod(AnalogPin.P15, 20000)
-		pins.analogWritePin(AnalogPin.P15, 100)
-		pins.digitalWritePin(DigitalPin.P16, 0)
-		basic.pause(500)
-		Stop()
-		basic.pause(100)
-		pins.analogSetPeriod(AnalogPin.P13, 20000)
-		pins.analogWritePin(AnalogPin.P13, 100)
-		pins.digitalWritePin(DigitalPin.P14, 0)
-		pins.digitalWritePin(DigitalPin.P15, 0)
-		pins.analogSetPeriod(AnalogPin.P16, 20000)
-		pins.analogWritePin(AnalogPin.P16, 200)
-		basic.pause(500)
-		Stop()
-		basic.pause(100)
+	let lastExpected = new PWM(120, 100)
+
+	export function LastExpected(): ExpectedPWM {
+		return lastExpected
 	}
 
-	export function ZeroRadiusLeft() {
-		pins.analogSetPeriod(AnalogPin.P13, 20000)
-		pins.analogWritePin(AnalogPin.P13, 200)
-		pins.digitalWritePin(DigitalPin.P14, 0)
-		pins.digitalWritePin(DigitalPin.P15, 0)
-		pins.analogSetPeriod(AnalogPin.P16, 20000)
-		pins.analogWritePin(AnalogPin.P16, 100)
-		bleLog.logLine("ZeroRadiusLeft front")
-		basic.pause(500)
-		Stop()
-		basic.pause(100)
-		pins.digitalWritePin(DigitalPin.P13, 0)
-		pins.analogSetPeriod(AnalogPin.P14, 20000)
-		pins.analogWritePin(AnalogPin.P14, 100)
-		pins.analogSetPeriod(AnalogPin.P15, 20000)
-		pins.analogWritePin(AnalogPin.P15, 200)
-		pins.digitalWritePin(DigitalPin.P16, 0)
-		bleLog.logLine("ZeroRadiusLeft back")
-		basic.pause(500)
-		Stop()
-		basic.pause(100)
-	}
-
-	input.onButtonPressed(Button.A, function () {
-		input.calibrateCompass()
-	})
-
-	function Settings(){
-		RV = standardVoltage * standardRPWM
-		LV = standardVoltage * standardLPWM
-		LPWM = LV / (pins.analogReadPin(AnalogPin.P1))
-		RPWM = RV / (pins.analogReadPin(AnalogPin.P1))
-	}
-
-	export function setLPWM(lpwm: number) {
-		standardLPWM = lpwm
-		Settings()
-	}
-
-	export function lPWM() {
-		return LPWM
-	}
-
-	export function setRPWM(rpwm: number) {
-		standardRPWM = rpwm
-		Settings()
-	}
-
-	export function rPWM() {
-		return RPWM
-	}
-
-	const diff = 0.7
 	const standardVoltage = Math.round(1023 * 2.9 / 3.31)
-	let standardRPWM = 120
-	let standardLPWM = 100
-	let RV = standardVoltage * standardRPWM
-	let LV = standardVoltage * standardLPWM
-	let LPWM = LV / (pins.analogReadPin(AnalogPin.P1))
-	let RPWM = RV / (pins.analogReadPin(AnalogPin.P1))
 
+	export function Settings(expectedPWM: PWM): RealPWM {
+		lastExpected = expectedPWM
 
+		let RV = standardVoltage * expectedPWM.RPWM
+		let LV = standardVoltage * expectedPWM.LPWM
+		let realLPWM = LV / (pins.analogReadPin(AnalogPin.P1))
+		let realRPWM = RV / (pins.analogReadPin(AnalogPin.P1))
+
+		return new PWM(realRPWM, realLPWM)
+	}
+
+	export function setLPWM(lpwm: number): ExpectedPWM {
+		return new PWM(lastExpected.RPWM, lpwm)
+	}
+
+	export function setRPWM(rpwm: number): ExpectedPWM {
+		return new PWM(rpwm, lastExpected.LPWM)
+	}
 
 }
 
