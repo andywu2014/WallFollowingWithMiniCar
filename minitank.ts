@@ -9,8 +9,8 @@ namespace miniTank {
 	const diff = 0.7
 
 	export const Straight = new PWM(120, 100)
-	export const Left90 = new PWM(150, 0)
-	export const Right90 = new PWM(0, 160)
+	export const Left90 = new PWM(180, 0)
+	export const Right90 = new PWM(0, 180)
 	export const LeftSlight = new PWM(120, 100 * diff)
 	export const RightSlight = new PWM(120 * diff, 100)
 
