@@ -98,7 +98,7 @@ namespace wallFollowing2 {
 
 		if (nowState.frontDistance <= minFrontDis) {
 			nextState.driving = Driving.Right90
-			miniTank.GoForward(miniTank.Right90)
+			miniTank.GoForward(miniTank.RightR0)
 			return 1200
 		}
 
@@ -134,7 +134,7 @@ namespace wallFollowing2 {
 
 		if (nowState.frontDistance <= minFrontDis) {
 			nextState.driving = Driving.Right90
-			miniTank.GoForward(miniTank.Right90)
+			miniTank.GoForward(miniTank.RightR0)
 			return 1200
 		}
 
@@ -156,7 +156,7 @@ namespace wallFollowing2 {
 
 		if (nowState.frontDistance <= minFrontDis) {
 			nextState.driving = Driving.Right90
-			miniTank.GoForward(miniTank.Right90)
+			miniTank.GoForward(miniTank.RightR0)
 			return 1200
 		}
 		bleLog.logLine("GoHead OK")
@@ -167,7 +167,7 @@ namespace wallFollowing2 {
 
 	allModelDrivers[Driving.PreLeft90] = function (nextState: carState.State): number {
 		nextState.driving = Driving.Left90
-		miniTank.GoForward(miniTank.Left90)
+		miniTank.GoForward(miniTank.LeftR0)
 		return 1500
 	}
 
@@ -194,7 +194,7 @@ namespace wallFollowing2 {
 
 	allModelDrivers[Driving.GoingBack] = function (nextState: carState.State): number {
 		nextState.driving = Driving.Right90
-		miniTank.GoForward(miniTank.Right90)
+		miniTank.GoForward(miniTank.RightR0)
 		return 1200
 	}
 
