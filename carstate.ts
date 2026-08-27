@@ -37,6 +37,7 @@ namespace carState {
 		time: number
 		distance: number
 		speed: number
+		voltage: number
 
 		constructor(){
 			this.driving = Driving.Stop
@@ -46,11 +47,14 @@ namespace carState {
 			this.time = 0
 			this.distance = 0
 			this.speed = 0
+			this.voltage = 0
+
 		}
 
 		toLog(): string {
 			return "time:" + convertToText(this.time) + "; driving:" + carState.DrivingToStr(this.driving)
-				+ "; left:" + convertToText(this.leftDistance) +"; front:" + convertToText(this.frontDistance)
+				+ "; left:" + convertToText(this.leftDistance) + "; front:" + convertToText(this.frontDistance)
+				+ "; voltage:" + convertToText(this.voltage)
 				// + "; angel:" + convertToText(this.angel)
 		}
 	}
