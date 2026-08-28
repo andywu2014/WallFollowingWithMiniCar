@@ -11,9 +11,10 @@ namespace miniTank {
 
 	const diff = 0.7
 
+	// Straight 实验测得平均速度为 70.8mm/s
 	export const Straight = new PWM(120, 110)
-	export const LeftR0 = new PWM(200, 0)
-	export const RightR0 = new PWM(0, 200)
+	export const LeftR0 = new PWM(150, 0)
+	export const RightR0 = new PWM(0, 150)
 	export const LeftSlight = new PWM(120, 110 * diff)
 	export const RightSlight = new PWM(120 * diff, 110)
 
@@ -103,7 +104,7 @@ namespace miniTank {
 		// control.raiseEvent(adjustEvent, 0)
 	}
 
-	const deltaPWM = 50
+	const deltaPWM = 10
 	control.inBackground(function (){
 		let currentLPWM = lastExpected.LPWM
 		let currentRPWM = lastExpected.RPWM
@@ -144,7 +145,7 @@ namespace miniTank {
 			adjustR(realRPWM)
 
 			num++
-			if (num % 4 == 0) {
+			if (num % 20 == 0) {
 				let voltage = voltageP1 * 3.31 / 1023
 				bleLog.logLine(stateStr[state] + " --- time:" + convertToText(control.millis()) + "; v:" + convertToText(voltage)
 					+ "; RPWM:" + convertToText(realRPWM) + "; LPWM:" + convertToText(realLPWM))
