@@ -8,7 +8,7 @@ namespace bleLog {
 	}
 
 	class EventObjectBuffer<T> {
-		static LEN = 10
+		static LEN = 20
 		private static EmptyFlag = -1
 
 		buffer: BufferValue<T>[] = []
