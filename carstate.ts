@@ -24,6 +24,7 @@ namespace carState {
 	export enum Driving {
 		Stop, Ready, GoingHead, SlightRight, SlightLeft, Right90, PreLeft90, Left90, GoingBack, ALL
 	}
+	//hold
 	const drivingStrs: string[] = ["Stop","Ready", "GoingHead", "SlightRight", "SlightLeft", "Right90", "PreLeft90", "Left90", "GoingBack"]
 	export function DrivingToStr(d: Driving): string {
 		return drivingStrs[d]
@@ -38,6 +39,7 @@ namespace carState {
 		distance: number
 		speed: number
 		voltage: number
+		GoingHead0left: number
 
 		constructor(){
 			this.driving = Driving.Stop
@@ -48,6 +50,7 @@ namespace carState {
 			this.distance = 0
 			this.speed = 0
 			this.voltage = 0
+			this.GoingHead0left = 0
 
 		}
 

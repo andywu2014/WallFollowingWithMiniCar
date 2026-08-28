@@ -47,7 +47,9 @@ namespace wallFollowing2 {
 		state.speed = 0
 		state.distance = 0
 		state.angel = 0
+		state.GoingHead0left = 0
 		carState.history.setLatest(state)
+
 	}
 
 	type ModelDriver = (nextState: carState.State)=>number
@@ -73,11 +75,14 @@ namespace wallFollowing2 {
 	const minFrontDis = 40
 
 	allModelDrivers[Driving.Ready] = function (nextState: carState.State): number {
+		let nowState = carState.history.get(0)
+
 		bleLog.logLine("GoHead OK")
 
 		miniTank.GoForward(miniTank.Straight)
 		nextState.driving = carState.Driving.GoingHead
-		return 500
+		nextState.GoingHead0left = nowState.leftDistance
+		return 100
 	}
 
 	allModelDrivers[Driving.GoingHead] = function (nextState: carState.State): number {
@@ -93,7 +98,7 @@ namespace wallFollowing2 {
 		if (nowState.leftDistance >= maze.WallMazeWidth ){
 			nextState.driving = Driving.PreLeft90
 			miniTank.GoForward(miniTank.Straight)
-			return 800
+			return 400
 		}
 
 		if (nowState.frontDistance <= minFrontDis) {
@@ -106,7 +111,7 @@ namespace wallFollowing2 {
 			bleLog.logLine("TurnRight OK")
 			miniTank.GoForward(miniTank.RightSlight)
 			nextState.driving = carState.Driving.SlightRight
-			return 500
+			return 800
 		}
 
 		if (nowState.leftDistance > maze.LeftSensorExpectedDis + allowedDrift && diff < errLDiS * -1 ) {
@@ -119,7 +124,12 @@ namespace wallFollowing2 {
 		bleLog.logLine("GoHead OK")
 		miniTank.GoForward(miniTank.Straight)
 		nextState.driving = carState.Driving.GoingHead
-		return 500
+		if (nowState.GoingHead0left != undefined && nowState.GoingHead0left > 0){
+			nextState.GoingHead0left = nowState.GoingHead0left
+		} else {
+			nextState.GoingHead0left = nowState.leftDistance
+		}
+		return 100
 	}
 
 	allModelDrivers[Driving.SlightLeft] = function (nextState: carState.State): number {
@@ -129,7 +139,7 @@ namespace wallFollowing2 {
 		if (nowState.leftDistance >= maze.WallMazeWidth ){
 			nextState.driving = Driving.PreLeft90
 			miniTank.GoForward(miniTank.Straight)
-			return 800
+			return 400
 		}
 
 		if (nowState.frontDistance <= minFrontDis) {
@@ -141,7 +151,8 @@ namespace wallFollowing2 {
 		bleLog.logLine("GoHead OK")
 		miniTank.GoForward(miniTank.Straight)
 		nextState.driving = carState.Driving.GoingHead
-		return 500
+		nextState.GoingHead0left = nowState.leftDistance
+		return 100
 	}
 
 	allModelDrivers[Driving.SlightRight] = function (nextState: carState.State): number {
@@ -151,7 +162,7 @@ namespace wallFollowing2 {
 		if (nowState.leftDistance >= maze.WallMazeWidth ){
 			nextState.driving = Driving.PreLeft90
 			miniTank.GoForward(miniTank.Straight)
-			return 800
+			return 400
 		}
 
 		if (nowState.frontDistance <= minFrontDis) {
@@ -162,7 +173,8 @@ namespace wallFollowing2 {
 		bleLog.logLine("GoHead OK")
 		miniTank.GoForward(miniTank.Straight)
 		nextState.driving = carState.Driving.GoingHead
-		return 500
+		nextState.GoingHead0left = nowState.leftDistance
+		return 100
 	}
 
 	allModelDrivers[Driving.PreLeft90] = function (nextState: carState.State): number {
@@ -174,7 +186,7 @@ namespace wallFollowing2 {
 	allModelDrivers[Driving.Left90] = function (nextState: carState.State): number {
 		miniTank.GoForward(miniTank.Straight)
 		nextState.driving = Driving.GoingHead
-		return 800
+		return 500
 	}
 
 	allModelDrivers[Driving.Right90] = function (nextState: carState.State): number {
@@ -183,7 +195,8 @@ namespace wallFollowing2 {
 		if (nowState.frontDistance <= minFrontDis) {
 			nextState.driving = Driving.GoingBack
 			miniTank.GoBack(miniTank.Straight)
-			return 300
+			//实验测得平均速度为70.8mm/s
+			return Math.round((50 - nowState.frontDistance) * 1000 / 70.8)
 		}
 
 		bleLog.logLine("GoHead OK")
