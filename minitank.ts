@@ -12,11 +12,11 @@ namespace miniTank {
 	const diff = 0.7
 
 	// Straight 实验测得平均速度为 70.8mm/s
-	export const Straight = new PWM(120, 110)
-	export const LeftR0 = new PWM(150, 0)
-	export const RightR0 = new PWM(0, 150)
-	export const LeftSlight = new PWM(120, 110 * diff)
-	export const RightSlight = new PWM(120 * diff, 110)
+	export const Straight = new PWM(110, 100)
+	export const LeftR0 = new PWM(100, 0)
+	export const RightR0 = new PWM(0, 100)
+	export const LeftSlight = new PWM(110, 100 * diff)
+	export const RightSlight = new PWM(110 * diff, 100)
 
 	export function GoForward(expectedPWM: ExpectedPWM) {
 		if (expectedPWM.LPWM <= 0.1 && expectedPWM.RPWM <= 0.1) {
@@ -28,8 +28,8 @@ namespace miniTank {
 		// bleLog.logLine("GoForward --- time:" + convertToText(control.millis())
 		// 	+ "; RPWM:" + convertToText(real.RPWM) + "; LPWM:" + convertToText(real.LPWM))
 		pins.digitalWritePin(DigitalPin.P13, 0)
-		pins.analogSetPeriod(AnalogPin.P14, 20000)
-		pins.analogSetPeriod(AnalogPin.P15, 20000)
+		pins.analogSetPeriod(AnalogPin.P14, 10000)
+		pins.analogSetPeriod(AnalogPin.P15, 10000)
 		pins.digitalWritePin(DigitalPin.P16, 0)
 		// pins.analogWritePin(AnalogPin.P14, real.LPWM)
 		// pins.analogWritePin(AnalogPin.P15, real.RPWM)
@@ -45,10 +45,10 @@ namespace miniTank {
 		let real = Settings(expectedPWM)
 		// bleLog.logLine("GoBack --- time:" + convertToText(control.millis())
 		// 	+ "; RPWM:" + convertToText(real.RPWM) + "; LPWM:" + convertToText(real.LPWM))
-		pins.analogSetPeriod(AnalogPin.P13, 20000)
+		pins.analogSetPeriod(AnalogPin.P13, 500)
 		pins.digitalWritePin(DigitalPin.P14, 0)
 		pins.digitalWritePin(DigitalPin.P15, 0)
-		pins.analogSetPeriod(AnalogPin.P16, 20000)
+		pins.analogSetPeriod(AnalogPin.P16, 500)
 		// pins.analogWritePin(AnalogPin.P13, real.LPWM)
 		// pins.analogWritePin(AnalogPin.P16, real.RPWM)
 
@@ -145,7 +145,7 @@ namespace miniTank {
 			adjustR(realRPWM)
 
 			num++
-			if (num % 20 == 0) {
+			if (num % 50 == 0) {
 				let voltage = voltageP1 * 3.31 / 1023
 				bleLog.logLine(stateStr[state] + " --- time:" + convertToText(control.millis()) + "; v:" + convertToText(voltage)
 					+ "; RPWM:" + convertToText(realRPWM) + "; LPWM:" + convertToText(realLPWM))
